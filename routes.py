@@ -1,27 +1,31 @@
 # Import necessary modules and functions
 import heapq
 from data import calculateDistance
+from scipy.spatial import KDTree
 
-# Function to create a graph from the airport data
-def create_graph(airport_data, num_neighbors=5):
+# Function to create a graph from the airport data using a k-d tree
+def create_graph_kdtree(airport_data, num_neighbors=5):
+    # Create a list of coordinates and a corresponding list of IATA codes
+    coordinates = []
+    iata_codes = []
+    for airport in airport_data.values():
+        coordinates.append((airport["latitude"], airport["longitude"]))
+        iata_codes.append(airport["iata"])
+
+    # Build a k-d tree
+    tree = KDTree(coordinates)
+
     # Initialize an empty graph
     graph = {}
+
     # Iterate over all airports in the data
-    for airport1 in airport_data.values():
-        # Initialize an empty list to store distances
-        distances = []
-        # Calculate the distance from the current airport to all other airports
-        for airport2 in airport_data.values():
-            # Avoid calculating the distance from the airport to itself
-            if airport1["iata"] != airport2["iata"]:
-                # Calculate the distance between the two airports
-                distance = calculateDistance(airport1["latitude"], airport1["longitude"], airport2["latitude"], airport2["longitude"])
-                # Add the distance and the IATA code of the second airport to the list
-                distances.append((distance, airport2["iata"]))
-        # Sort the distances in ascending order
-        distances.sort()
+    for i, airport in enumerate(airport_data.values()):
+        # Query the k-d tree for the nearest neighbors of the current airport
+        distances, indices = tree.query(coordinates[i], k=num_neighbors+1)  # +1 because the airport itself is included
+
         # Add the current airport and its nearest neighbors to the graph
-        graph[airport1["iata"]] = {iata: distance for distance, iata in distances[:num_neighbors]}
+        graph[airport["iata"]] = {iata_codes[index]: distance for distance, index in zip(distances[1:], indices[1:])}  # Skip the first neighbor because it's the airport itself
+
     # Return the graph
     return graph
 
