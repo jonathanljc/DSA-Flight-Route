@@ -11,29 +11,34 @@ def main():
     print(f"{len(airport_data)} airports in Asia")
 
     try:
-        # Print the data for the airport with IATA code "SIN"
-        print(airport_data["SIN"])
+        # Get user to enter IATA Code of starting airport
+        inputAirport = input("Enter starting IATA Code: ")
 
-        # Calculate the distance between "SIN" and "PEK" using the calculateDistance function from the data module
+        # Get user to enter IATA Code of target airport
+        targetAirport = input("Enter target IATA Code: ")
+
+        # Print the data for the starting and target airports
+        print(airport_data[inputAirport])
+        print(airport_data[targetAirport])
+
+        # Calculate the distance between inputAirport and targetAirport using the calculateDistance function from the data module
         distance = calculateDistance(
-            airport_data["SIN"]["latitude"], airport_data["SIN"]["longitude"],
-            airport_data["PEK"]["latitude"], airport_data["PEK"]["longitude"]
+            airport_data[inputAirport]["latitude"], airport_data[inputAirport]["longitude"],
+            airport_data[targetAirport]["latitude"], airport_data[targetAirport]["longitude"]
         )
         # Print the calculated distance
-        print(f"Distance from SIN to PEK: {distance} km")
-
-        # (For Testing & maybe future use) Get user to enter IATA Code of airport to calculate
-        inputAirport = input("Enter IATA Code: ")
+        print(f"Distance from {inputAirport} to {targetAirport}: {distance} km")
 
         # Create a graph from the airport data using the create_graph_kdtree function from the routes module
         graph = create_graph_kdtree(airport_data)
-        # Calculate the shortest paths from "SIN" using the calculate_shortest_path function from the routes module
-        shortest_paths = calculate_shortest_path(graph, inputAirport)
 
-        # Print the shortest paths
-        print(shortest_paths)
+        # Calculate the shortest path from inputAirport to targetAirport using the calculate_shortest_path function from the routes module
+        shortest_paths = calculate_shortest_path(graph, inputAirport, targetAirport)
+
+        # Print the shortest path to the target airport
+        print(f"Shortest distance from {inputAirport} to {targetAirport}: {shortest_paths[targetAirport]} km")
     except KeyError as e:
-        # Print an error message if a KeyError occurs (e.g., if "SIN" or "PEK" is not in the airport data)
+        # Print an error message if a KeyError occurs (e.g., if inputAirport or targetAirport is not in the airport data)
         print(f"KeyError: {e}")
 
 # If this script is run directly (not imported as a module), call the main function
