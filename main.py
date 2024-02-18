@@ -1,6 +1,6 @@
 # Import necessary functions from the data and routes modules
 from data import filterData, calculateDistance
-from routes import create_graph, calculate_shortest_path
+from routes import create_graph_kdtree, calculate_shortest_path
 
 # Define the main function
 def main():
@@ -22,8 +22,8 @@ def main():
         # Print the calculated distance
         print(f"Distance from SIN to PEK: {distance} km")
 
-        # Create a graph from the airport data using the create_graph function from the routes module
-        graph = create_graph(airport_data)
+        # Create a graph from the airport data using the create_graph_kdtree function from the routes module
+        graph = create_graph_kdtree(airport_data)
         # Calculate the shortest paths from "SIN" using the calculate_shortest_path function from the routes module
         shortest_paths = calculate_shortest_path(graph, "SIN")
 
