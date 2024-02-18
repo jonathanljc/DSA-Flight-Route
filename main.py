@@ -22,10 +22,13 @@ def main():
         # Print the calculated distance
         print(f"Distance from SIN to PEK: {distance} km")
 
+        # (For Testing & maybe future use) Get user to enter IATA Code of airport to calculate
+        inputAirport = input("Enter IATA Code: ")
+
         # Create a graph from the airport data using the create_graph_kdtree function from the routes module
         graph = create_graph_kdtree(airport_data)
         # Calculate the shortest paths from "SIN" using the calculate_shortest_path function from the routes module
-        shortest_paths = calculate_shortest_path(graph, "SIN")
+        shortest_paths = calculate_shortest_path(graph, inputAirport)
 
         # Print the shortest paths
         print(shortest_paths)
