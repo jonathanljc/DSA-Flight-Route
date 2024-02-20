@@ -36,7 +36,7 @@ def filterRouteData(airportData):
                 eachRoute = {
                     "source": split[2].strip('"'),
                     "destination": split[4].strip('"'),
-                    "airline": split[0].strip('"')
+                    "airlineID": split[1].strip('"')
                 }
 
                 routes.append(eachRoute)
@@ -58,3 +58,19 @@ def calculateDistance(latitude1, longitude1, latitude2, longitude2):
     # Return the distance
     return distance
 
+def filterAirline():
+    with open("airlines.dat", "r", encoding='utf8') as data:
+        airlines = []
+
+        for line in data:
+            split = line.split(',')
+
+            eachAirline = {
+                "airlineID": split[0].strip('"'),
+                "airlineName": split[1].strip('"'),
+            }
+            
+            airlines.append(eachAirline)
+
+    # print(airlines)
+    return airlines

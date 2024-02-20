@@ -1,6 +1,6 @@
 # Import necessary functions from the data and routes modules
-from data import filterData, calculateDistance, filterRouteData
-from routes import create_graph_kdtree, calculate_shortest_path
+from data import filterData, calculateDistance, filterRouteData, filterAirline
+from routes import create_graph_kdtree, calculate_shortest_path, findConnectingFlight, findDirectFlight
 
 # Define the main function
 def main():
@@ -9,6 +9,9 @@ def main():
 
     # Load and filter routes using the filterRouteData function from the data module
     route_data = filterRouteData(airport_data)
+
+    # Load airlines using the filterRouteData function from the data module
+    airline_data = filterAirline()
 
     # Print the number of airports and routes in Asia
     print(f"{len(airport_data)} airports in Asia")
@@ -33,6 +36,7 @@ def main():
         # Print the calculated distance
         print(f"Distance from {inputAirport} to {targetAirport}: {distance} km")
         
+        print("Calculating shortest path...")
 
         # Create a graph from the airport data using the create_graph_kdtree function from the routes module
         graph = create_graph_kdtree(airport_data)
@@ -42,6 +46,14 @@ def main():
 
         shortest_distances, shortest_path = calculate_shortest_path(graph, inputAirport, targetAirport)
         print(f"Shortest path from {inputAirport} to {targetAirport}: {' -> '.join(shortest_path)}")
+
+        # Find a direct flight from source to destination
+        print(findDirectFlight(shortest_path, route_data, airline_data))
+        
+        connectingRoute = findConnectingFlight(route_data, shortest_path)
+        print(connectingRoute)
+
+
     except KeyError as e:
         # Print an error message if a KeyError occurs (e.g., if inputAirport or targetAirport is not in the airport data)
         print(f"KeyError: {e}")

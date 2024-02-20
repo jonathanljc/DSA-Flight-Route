@@ -62,3 +62,48 @@ def calculate_shortest_path(graph, starting_vertex, target_vertex=None):
     path = path[::-1]
 
     return shortest_distances, path
+
+def findDirectFlight(path, route_data, airline_data):
+    directFlightsID = []
+    directFlightsName = []
+    sourceAirport = path[0]
+    destinationAirport = path[-1]
+
+    # Check if there is a direct flight
+    for route in route_data:
+        if route["source"] == sourceAirport:
+            if route["destination"] == destinationAirport:
+                directFlightsID.append(route["airlineID"])
+    
+    if len(directFlightsID) == 0:
+        return f"No direct flights from {path[0]} to {path[-1]}"
+    else:
+        for x in directFlightsID:
+            for airline in airline_data:
+                if x == airline["airlineID"]:
+                    directFlightsName.append(airline["airlineName"])
+            
+    return f"Direct Flights from {path[0]} to {path[-1]}: {', '.join(directFlightsName)}"
+
+def findConnectingFlight(route_data, shortest_path):
+    # flightsStack = []
+    # flightsStack.append(shortest_path[0])
+    
+    # def searchHop():
+    #     if shortest_path[0] == flightsStack[-1]:
+    #         return flightsStack
+        
+    #     for route in route_data:
+    #         if route['source'] == shortest_path[0] and route['destination'] == shortest_path[1]:
+    #             flightsStack.append(shortest_path[1])
+    #             del shortest_path[0]
+    #             return searchHop()
+    #         else:
+    #             if flightsStack[0] == shortest_path[-1]:
+    #                 return flightsStack
+    #             else:
+
+
+    # return searchHop()
+
+   return "Connecting Flights: Work in Progress."
