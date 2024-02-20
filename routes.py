@@ -35,42 +35,30 @@ def create_graph_kdtree(airport_data, num_neighbors=100):
 
 # Define a function to calculate the shortest path from a starting vertex to all other vertices in the graph.
 def calculate_shortest_path(graph, starting_vertex, target_vertex=None):
-    # Initialize the shortest distances to all vertices as infinity.
     shortest_distances = {vertex: float('infinity') for vertex in graph}
-    # The shortest distance to the starting vertex is 0.
     shortest_distances[starting_vertex] = 0
-    # Initialize a set to keep track of visited vertices.
-    visited = set()
-
-    # Initialize the heap with the starting vertex.
+    previous_vertices = {vertex: None for vertex in graph}
     heap = [(0, starting_vertex)]
-    # While there are vertices to be visited.
+
     while len(heap) > 0:
-        # Pop the vertex with the smallest distance.
         current_distance, current_vertex = heapq.heappop(heap)
 
-        # If the current vertex has already been visited, skip it.
-        if current_vertex in visited:
-            continue
-
-        # Mark the current vertex as visited.
-        visited.add(current_vertex)
-
-        # If the current vertex is the target vertex, break from the loop.
         if current_vertex == target_vertex:
             break
 
-        # For each neighbor of the current vertex.
         for neighbor, weight in graph[current_vertex].items():
-            # Calculate the distance to the neighbor through the current vertex.
             distance = current_distance + weight
 
-            # If the calculated distance is less than the currently known shortest distance to the neighbor.
             if distance < shortest_distances[neighbor]:
-                # Update the shortest distance to the neighbor.
                 shortest_distances[neighbor] = distance
-                # Push the neighbor to the heap.
+                previous_vertices[neighbor] = current_vertex
                 heapq.heappush(heap, (distance, neighbor))
 
-    # Return the shortest distances to all vertices.
-    return shortest_distances
+    path = []
+    current_vertex = target_vertex
+    while current_vertex is not None:
+        path.append(current_vertex)
+        current_vertex = previous_vertices[current_vertex]
+    path = path[::-1]
+
+    return shortest_distances, path
