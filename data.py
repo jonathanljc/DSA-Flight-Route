@@ -23,6 +23,27 @@ def filterData():
 
     return totalAirport
 
+# Function to filter route data from routes.dat file
+def filterRouteData(airportData):
+    with open("routes.dat", "r", encoding='utf8') as data:
+        routes = []
+
+        for line in data:
+            split = line.split(',')
+
+            if split[2].strip('"') in airportData:
+                # print(split[2].strip('"'))
+                eachRoute = {
+                    "source": split[2].strip('"'),
+                    "destination": split[4].strip('"'),
+                    "airline": split[0].strip('"')
+                }
+
+                routes.append(eachRoute)
+
+    # print(routes)
+    return routes
+
 # Function to calculate distance between two geographical locations
 def calculateDistance(latitude1, longitude1, latitude2, longitude2):
     location1 = (latitude1, longitude1)  # Create a tuple for location 1

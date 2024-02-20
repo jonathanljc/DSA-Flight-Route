@@ -1,5 +1,5 @@
 # Import necessary functions from the data and routes modules
-from data import filterData, calculateDistance
+from data import filterData, calculateDistance, filterRouteData
 from routes import create_graph_kdtree, calculate_shortest_path
 
 # Define the main function
@@ -7,8 +7,12 @@ def main():
     # Load and filter airport data using the filterData function from the data module
     airport_data = filterData()
 
-    # Print the number of airports in Asia
+    # Load and filter routes using the filterRouteData function from the data module
+    route_data = filterRouteData(airport_data)
+
+    # Print the number of airports and routes in Asia
     print(f"{len(airport_data)} airports in Asia")
+    print(f"{len(route_data)} routes in Asia")
 
     try:
         # Get user to enter IATA Code of starting airport
