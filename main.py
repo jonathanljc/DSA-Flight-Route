@@ -32,6 +32,7 @@ def main():
         )
         # Print the calculated distance
         print(f"Distance from {inputAirport} to {targetAirport}: {distance} km")
+        
 
         # Create a graph from the airport data using the create_graph_kdtree function from the routes module
         graph = create_graph_kdtree(airport_data)
@@ -39,8 +40,8 @@ def main():
         # Calculate the shortest path from inputAirport to targetAirport using the calculate_shortest_path function from the routes module
         shortest_paths = calculate_shortest_path(graph, inputAirport, targetAirport)
 
-        # Print the shortest path to the target airport
-        print(f"Shortest distance from {inputAirport} to {targetAirport}: {shortest_paths[targetAirport]} km")
+        shortest_distances, shortest_path = calculate_shortest_path(graph, inputAirport, targetAirport)
+        print(f"Shortest path from {inputAirport} to {targetAirport}: {' -> '.join(shortest_path)}")
     except KeyError as e:
         # Print an error message if a KeyError occurs (e.g., if inputAirport or targetAirport is not in the airport data)
         print(f"KeyError: {e}")
