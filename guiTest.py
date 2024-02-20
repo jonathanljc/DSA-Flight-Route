@@ -93,13 +93,14 @@ class App(customtkinter.CTk):
         self.map_option_menu.set("OpenStreetMap")
         self.appearance_mode_optionemenu.set("Dark")
 
+        # Setting markers for Asia airports
         self.airport_markers()
 
     # Functions for the map (Search, Marker, Clear, Change appearance mode, Change map)
     def search_event(self, event=None):
         self.map_widget.set_address(self.entry.get())
 
-    # Set Marker
+    # Set Marker (Remove later too)
     def set_marker_event(self):
         current_position = self.map_widget.get_position()
         self.marker_list.append(self.map_widget.set_marker(current_position[0], current_position[1]))
@@ -107,7 +108,7 @@ class App(customtkinter.CTk):
     def airport_markers(self):
         airport_data = filterData()
         for iata, airport in airport_data.items():
-            self.map_widget.set_marker(airport["latitude"], airport["longitude"], text=airport["name"], )
+            self.map_widget.set_marker(airport["latitude"], airport["longitude"], text=airport["name"])
 
     # Clear All markers (remove later)
     def clear_marker_event(self):
