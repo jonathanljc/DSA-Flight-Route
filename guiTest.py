@@ -107,7 +107,7 @@ class App(customtkinter.CTk):
     def airport_markers(self):
         airport_data = filterData()
         for iata, airport in airport_data.items():
-            self.marker_list.append(self.map_widget.set_marker(airport["latitude"], airport["longitude"]))
+            self.map_widget.set_marker(airport["latitude"], airport["longitude"], text=airport["name"], )
 
     # Clear All markers (remove later)
     def clear_marker_event(self):
