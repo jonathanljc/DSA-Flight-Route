@@ -1,14 +1,18 @@
 # Import necessary functions from the data and routes modules
-from data import filterData, calculateDistance, filterRouteData, filterAirline
+from data import filterAirportData, calculateDistance, filterRouteData, filterAirline, filterAirportDataFurther
 from routes import create_graph_kdtree, calculate_shortest_path, findConnectingFlight, findDirectFlight
 
 # Define the main function
 def main():
     # Load and filter airport data using the filterData function from the data module
-    airport_data = filterData()
+    airport_data = filterAirportData()
 
     # Load and filter routes using the filterRouteData function from the data module
     route_data = filterRouteData(airport_data)
+
+    # Futher filters the airports to only those airports that have a commercial flight route
+    # (Remove this is dont want to implement this filter)
+    airport_data = filterAirportDataFurther(airport_data, route_data)
 
     # Load airlines using the filterRouteData function from the data module
     airline_data = filterAirline()

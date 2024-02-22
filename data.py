@@ -2,7 +2,7 @@
 from geopy.distance import geodesic as GD
 
 # Function to filter data from the airports.dat file
-def filterData():
+def filterAirportData():
     with open("airports.dat", "r", encoding='utf8') as data:
         totalAirport = {}
 
@@ -22,6 +22,16 @@ def filterData():
                 totalAirport[eachAirport["iata"]] = eachAirport
 
     return totalAirport
+
+def filterAirportDataFurther(airportData, routeData):
+    newAirportData = {}
+    for airport in airportData:
+        for route in routeData:
+            if airport == route["source"]:
+                newAirportData[airport] = airportData[airport]
+                break
+    
+    return newAirportData
 
 # Function to filter route data from routes.dat file
 def filterRouteData(airportData):
