@@ -27,7 +27,7 @@ def filterAirportDataFurther(airportData, routeData):
     newAirportData = {}
     for airport in airportData:
         for route in routeData:
-            if airport == route["source"]:
+            if (airport == route["source"]) or (airport == route["destination"]):
                 newAirportData[airport] = airportData[airport]
                 break
     
