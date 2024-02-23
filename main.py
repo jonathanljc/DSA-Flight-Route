@@ -5,17 +5,21 @@ from routes import create_graph_kdtree, calculate_shortest_path, findConnectingF
 # Define the main function
 def main():
     # Load and filter airport data using the filterData function from the data module
+    # airport_data is a dictionary containing the IATA code of each airport as the key and the airport data as the value
     airport_data = filterAirportData()
 
     # Load and filter routes using the filterRouteData function from the data module
+    # route data is a list of dictionaries containing the source, destination and airline ID of each route
     route_data = filterRouteData(airport_data)
 
     # Futher filters the airports to only those airports that have a commercial flight route
-    # (Remove this is dont want to implement this filter)
-    airport_data = filterAirportDataFurther(airport_data, route_data)
+    # (Remove this if dont want to implement this filter)
+    commercial_airport_data = filterAirportDataFurther(airport_data, route_data)
 
     # Load airlines using the filterRouteData function from the data module
+    # airline_data is a dictionary containing the IATA code of each airline as the key and the airline data as the value
     airline_data = filterAirline()
+
 
     # Print the number of airports and routes in Asia
     print(f"{len(airport_data)} airports in Asia")
@@ -42,6 +46,9 @@ def main():
         
         print("Calculating shortest path...")
 
+
+
+
         # Create a graph from the airport data using the create_graph_kdtree function from the routes module
         graph = create_graph_kdtree(airport_data)
 
@@ -65,3 +72,4 @@ def main():
 # If this script is run directly (not imported as a module), call the main function
 if __name__ == "__main__":
     main()
+

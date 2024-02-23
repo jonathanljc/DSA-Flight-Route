@@ -1,8 +1,12 @@
 # Import the heapq module for creating min-heap, useful in graph algorithms like Dijkstra's.
 import heapq
+
 # Import the calculateDistance function that calculates the geographical distance between two points.
 from data import calculateDistance
+
 # Import KDTree, a space-partitioning data structure for organizing points in a k-dimensional space.
+# Install scipy if you don't have it installed.
+# pip3 install scipy (mac), pip install scipy (windows)
 from scipy.spatial import KDTree
 
 # Define a function to create a graph from the airport data using a k-d tree.
