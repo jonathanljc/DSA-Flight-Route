@@ -1,6 +1,11 @@
+# install the following packages:
+# pip3 install customtkinter (mac), pip install customtkinter (windows)
+# pip3 install tkintermapview (mac), pip install tkintermapview (windows)
+
 import customtkinter
 from tkintermapview import TkinterMapView
 from data import filterAirportData, calculateDistance, filterRouteData, filterAirportDataFurther
+
 
 customtkinter.set_default_color_theme("blue")
 
@@ -139,6 +144,8 @@ class App(customtkinter.CTk):
 
     def start(self):
         self.mainloop()
+
+    
 
 
 if __name__ == "__main__":
