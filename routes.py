@@ -1,8 +1,12 @@
 # Import the heapq module for creating min-heap, useful in graph algorithms like Dijkstra's.
 import heapq
+
 # Import the calculateDistance function that calculates the geographical distance between two points.
 from data import calculateDistance
+
 # Import KDTree, a space-partitioning data structure for organizing points in a k-dimensional space.
+# Install scipy if you don't have it installed.
+# pip3 install scipy (mac), pip install scipy (windows)
 from scipy.spatial import KDTree
 
 # Define a function to create a graph from the airport data using a k-d tree.
@@ -63,47 +67,69 @@ def calculate_shortest_path(graph, starting_vertex, target_vertex=None):
 
     return shortest_distances, path
 
-def findDirectFlight(path, route_data, airline_data):
-    directFlightsID = []
-    directFlightsName = []
-    sourceAirport = path[0]
-    destinationAirport = path[-1]
+# def findDirectFlight(path, route_data, airline_data):
+#     directFlightsID = []
+#     directFlightsName = []
+#     sourceAirport = path[0]
+#     destinationAirport = path[-1]
 
-    # Check if there is a direct flight
-    for route in route_data:
-        if route["source"] == sourceAirport:
-            if route["destination"] == destinationAirport:
-                directFlightsID.append(route["airlineID"])
+#     # Check if there is a direct flight
+#     for route in route_data:
+#         if route["source"] == sourceAirport:
+#             if route["destination"] == destinationAirport:
+#                 directFlightsID.append(route["airlineID"])
     
-    if len(directFlightsID) == 0:
-        return f"No direct flights from {path[0]} to {path[-1]}"
-    else:
-        for x in directFlightsID:
-            for airline in airline_data:
-                if x == airline["airlineID"]:
-                    directFlightsName.append(airline["airlineName"])
+#     if len(directFlightsID) == 0:
+#         return f"No direct flights from {path[0]} to {path[-1]}"
+#     else:
+#         for x in directFlightsID:
+#             for airline in airline_data:
+#                 if x == airline["airlineID"]:
+#                     directFlightsName.append(airline["airlineName"])
             
-    return f"Direct Flights from {path[0]} to {path[-1]}: {', '.join(directFlightsName)}"
+#     return f"Direct Flights from {path[0]} to {path[-1]}: {', '.join(directFlightsName)}"
 
-def findConnectingFlight(route_data, shortest_path):
-    # flightsStack = []
-    # flightsStack.append(shortest_path[0])
+def findFlights(route_data, shortest_path):
+    airportsList = shortest_path[:-1]  # Exclude destination airport
+    connecting_flights = []
+    direct_flights = []
+
+    for airport in airportsList:
+        # Check if there are routes departing from the connecting airport
+        departing_routes = [route for route in route_data if route["source"] == airport]
+
+        for route in departing_routes:
+            # Check if the destination of the route is one of the airports in the shortest path
+            if route["destination"] in shortest_path:
+                # if route source is airport source and destination route is airport destination = direct flight
+                if route["destination"] == shortest_path[-1] and route["source"] == shortest_path[0]:
+                    direct_flights.append(route)
+                else:
+                    # if route destination is not airport destination BUT route source is airport source = connecting flight
+                    if route["destination"] != shortest_path[-1] and route["source"] == shortest_path[0]:
+                        connecting_flights.append(route)
+
+                    # if route source is not airport source BUT route destination IS airport destination = connecting flight
+                    elif route["destination"] == shortest_path[-1] and route["source"] != shortest_path[0]:
+                        connecting_flights.append(route)
+
+                    # if route source/destination is not airport source AND not airport destination
+                    # AND route destination is not airport source = connecting flight
+                    elif route["destination"] != shortest_path[-1] and route["source"] != shortest_path[0] and route["destination"] != shortest_path[0]:
+                        connecting_flights.append(route)
+
+    if len(direct_flights) == 0:
+        print("No direct flights found.")
+    else:
+        print("Direct Flights:")
+        for flight in direct_flights:
+            print(flight)
+
     
-    # def searchHop():
-    #     if shortest_path[0] == flightsStack[-1]:
-    #         return flightsStack
-        
-    #     for route in route_data:
-    #         if route['source'] == shortest_path[0] and route['destination'] == shortest_path[1]:
-    #             flightsStack.append(shortest_path[1])
-    #             del shortest_path[0]
-    #             return searchHop()
-    #         else:
-    #             if flightsStack[0] == shortest_path[-1]:
-    #                 return flightsStack
-    #             else:
-
-
-    # return searchHop()
-
-   return "Connecting Flights: Work in Progress."
+    if len(connecting_flights) == 0:
+        print("No connecting flights found.")
+    else:
+        print("Connecting Flights:")
+        for flight in connecting_flights:
+        # connecting_flight_info.append(f"Flight {flight['airlineID']} from {flight['source']} to {flight['destination']}")
+            print(flight)

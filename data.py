@@ -1,8 +1,14 @@
 # Import geodesic function from geopy.distance to calculate geographical distance
+# Install the geopy package if not already installed
+# pip3 install geopy (mac), pip install geopy (windows) 
+
 from geopy.distance import geodesic as GD
 
 # Function to filter data from the airports.dat file
-def filterData():
+# totalAirpot is a dictionary that contains a dictionary of all airports in Asia
+# totalAirport uses the IATA code as the key and the value is a dictionary containing the name, city, country, IATA code, latitude and longitude of the airport
+
+def filterAirportData():
     with open("airports.dat", "r", encoding='utf8') as data:
         totalAirport = {}
 
@@ -23,7 +29,21 @@ def filterData():
 
     return totalAirport
 
-# Function to filter route data from routes.dat file
+
+def filterAirportDataFurther(airportData, routeData):
+    newAirportData = {}
+    for airport in airportData:
+        for route in routeData:
+            if (airport == route["source"]) or (airport == route["destination"]):
+                newAirportData[airport] = airportData[airport]
+                break
+    
+    return newAirportData
+
+# Function to filter route data from routes.dat file using the airport data from the filterAirportData function
+# routes is a list of dictionaries containing the source, destination and airline ID of each route
+# The source and destination are the IATA codes of the airports
+
 def filterRouteData(airportData):
     with open("routes.dat", "r", encoding='utf8') as data:
         routes = []
@@ -58,6 +78,8 @@ def calculateDistance(latitude1, longitude1, latitude2, longitude2):
     # Return the distance
     return distance
 
+# Function to filter airline data from airlines.dat file with airline ID and airline name
+# airlines is a list of dictionaries containing the airline ID and airline name of each airline
 def filterAirline():
     with open("airlines.dat", "r", encoding='utf8') as data:
         airlines = []

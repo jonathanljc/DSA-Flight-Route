@@ -1,20 +1,31 @@
 # Import necessary functions from the data and routes modules
-from data import filterData, calculateDistance, filterRouteData, filterAirline
-from routes import create_graph_kdtree, calculate_shortest_path, findConnectingFlight, findDirectFlight
+from data import filterAirportData, calculateDistance, filterRouteData, filterAirline, filterAirportDataFurther
+from routes import create_graph_kdtree, calculate_shortest_path, findFlights
 
 # Define the main function
 def main():
     # Load and filter airport data using the filterData function from the data module
-    airport_data = filterData()
+    # airport_data is a dictionary containing the IATA code of each airport as the key and the airport data as the value
+    airport_data = filterAirportData()
 
     # Load and filter routes using the filterRouteData function from the data module
+    # route data is a list of dictionaries containing the source, destination and airline ID of each route
     route_data = filterRouteData(airport_data)
 
+    # Futher filters the airports to only those airports that have a commercial flight route
+    # (Remove this if dont want to implement this filter)
+    commercial_airport_data = filterAirportDataFurther(airport_data, route_data)
+
+    # Using only commercial airport data
+    airport_data = commercial_airport_data
+
     # Load airlines using the filterRouteData function from the data module
+    # airline_data is a dictionary containing the IATA code of each airline as the key and the airline data as the value
     airline_data = filterAirline()
 
+
     # Print the number of airports and routes in Asia
-    print(f"{len(airport_data)} airports in Asia")
+    print(f"{len(airport_data)} commercial airports in Asia")
     print(f"{len(route_data)} routes in Asia")
 
     try:
@@ -25,8 +36,8 @@ def main():
         targetAirport = input("Enter target IATA Code: ")
 
         # Print the data for the starting and target airports
-        print(airport_data[inputAirport])
-        print(airport_data[targetAirport])
+        # print(airport_data[inputAirport])
+        # print(airport_data[targetAirport])
 
         # Calculate the distance between inputAirport and targetAirport using the calculateDistance function from the data module
         distance = calculateDistance(
@@ -38,6 +49,7 @@ def main():
         
         print("Calculating shortest path...")
 
+
         # Create a graph from the airport data using the create_graph_kdtree function from the routes module
         graph = create_graph_kdtree(airport_data)
 
@@ -47,11 +59,8 @@ def main():
         shortest_distances, shortest_path = calculate_shortest_path(graph, inputAirport, targetAirport)
         print(f"Shortest path from {inputAirport} to {targetAirport}: {' -> '.join(shortest_path)}")
 
-        # Find a direct flight from source to destination
-        print(findDirectFlight(shortest_path, route_data, airline_data))
-        
-        connectingRoute = findConnectingFlight(route_data, shortest_path)
-        print(connectingRoute)
+        # Find flights from source to destination
+        findFlights(route_data, shortest_path)
 
 
     except KeyError as e:
@@ -61,3 +70,4 @@ def main():
 # If this script is run directly (not imported as a module), call the main function
 if __name__ == "__main__":
     main()
+
