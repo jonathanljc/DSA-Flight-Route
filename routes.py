@@ -2,26 +2,33 @@ import heapq
 from data import DataFilter
 from scipy.spatial import KDTree
 
+# Class to represent a flight graph
 class FlightGraph:
+    # Initialize the flight graph with airport data and number of neighbors
     def __init__(self, airport_data, num_neighbors=100):
         self.data_filter = DataFilter()
         self.airport_data = airport_data
         self.num_neighbors = num_neighbors
         self.graph = self.create_graph_kdtree()
 
+    # Create a graph using KDTree for efficient nearest neighbor search
     def create_graph_kdtree(self):
         coordinates = []
         iata_codes = []
+        # Loop through all airports and collect their coordinates and IATA codes
         for airport in self.airport_data.values():
             coordinates.append((airport["latitude"], airport["longitude"]))
             iata_codes.append(airport["iata"])
+        # Create a KDTree with the coordinates
         tree = KDTree(coordinates)
         graph = {}
+        # For each airport, find its nearest neighbors and add them to the graph
         for i, airport in enumerate(self.airport_data.values()):
             _, indices = tree.query(coordinates[i], k=self.num_neighbors+1)
             graph[airport["iata"]] = {iata_codes[index]: self.data_filter.calculate_distance(airport["latitude"], airport["longitude"], self.airport_data[iata_codes[index]]["latitude"], self.airport_data[iata_codes[index]]["longitude"]) for index in indices[1:]}
         return graph
 
+    # Calculate the shortest path from a starting vertex to a target vertex using Dijkstra's algorithm
     def calculate_shortest_path(self, starting_vertex, target_vertex=None):
         shortest_distances = {vertex: float('infinity') for vertex in self.graph}
         shortest_distances[starting_vertex] = 0
@@ -51,6 +58,7 @@ class FlightGraph:
 
         return shortest_distances, path
 
+    # Reconstruct the path from start to goal
     def reconstruct_path(self, came_from, start, goal):
         current = goal
         path = []
@@ -60,9 +68,11 @@ class FlightGraph:
         path.reverse()  # Reverse the path to get it from start to goal
         return path
 
+    # Heuristic function for A* algorithm
     def heuristic(self, a, b):
         return abs(b[0] - a[0]) + abs(b[1] - a[1])
 
+    # A* algorithm to find the shortest path from start to goal
     def a_star(self, start, goal):
         queue = []
         heapq.heappush(queue, (0, start))
@@ -85,14 +95,17 @@ class FlightGraph:
 
         return scores, self.reconstruct_path(came_from, start, goal)
 
+    # Find flights for a given route data and shortest path
     def findFlights(self, route_data, shortest_path):
         airportsList = shortest_path[:-1]  # Exclude destination airport
         connecting_flights = []
         direct_flights = []
 
+        # Loop through all airports in the shortest path
         for airport in airportsList:
             departing_routes = [route for route in route_data if route["source"] == airport]
 
+            # Loop through all departing routes from the current airport
             for route in departing_routes:
                 if route["destination"] in shortest_path:
                     if route["destination"] == shortest_path[-1] and route["source"] == shortest_path[0]:
@@ -105,6 +118,7 @@ class FlightGraph:
                         elif route["destination"] != shortest_path[-1] and route["source"] != shortest_path[0] and route["destination"] != shortest_path[0]:
                             connecting_flights.append(route)
 
+        # Print direct and connecting flights
         if len(direct_flights) == 0:
             print("No direct flights found.")
         else:
