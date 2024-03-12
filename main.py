@@ -1,73 +1,44 @@
-# Import necessary functions from the data and routes modules
-from data import filterAirportData, calculateDistance, filterRouteData, filterAirline, filterAirportDataFurther
-from routes import create_graph_kdtree, calculate_shortest_path, findFlights
+from data import DataFilter
+from routes import FlightGraph
+import time
 
-# Define the main function
-def main():
-    # Load and filter airport data using the filterData function from the data module
-    # airport_data is a dictionary containing the IATA code of each airport as the key and the airport data as the value
-    airport_data = filterAirportData()
+class FlightPlanner:
+    def __init__(self):
+        self.data_filter = DataFilter()
+        self.airport_data = self.data_filter.airport_data
+        self.route_data = self.data_filter.route_data
+        self.airline_data = self.data_filter.airline_data
+        self.flight_graph = FlightGraph(self.airport_data)
 
-    # Load and filter routes using the filterRouteData function from the data module
-    # route data is a list of dictionaries containing the source, destination and airline ID of each route
-    route_data = filterRouteData(airport_data)
+    def create_graph(self):
+        self.graph = self.flight_graph.graph
 
-    # Futher filters the airports to only those airports that have a commercial flight route
-    # (Remove this if dont want to implement this filter)
-    commercial_airport_data = filterAirportDataFurther(airport_data, route_data)
+    def find_flights(self, source, destination):
+        start_time = time.time()
+        shortest_path_dijkstra = self.flight_graph.calculate_shortest_path(source, destination)[1]
+        end_time = time.time()
+        print(f"Execution time of Dijkstra's algorithm: {end_time - start_time} seconds")
 
-    # Using only commercial airport data
-    airport_data = commercial_airport_data
+        print(f"Shortest path from {source} to {destination} using Dijkstra's algorithm: {' -> '.join(shortest_path_dijkstra)}")
+    
+        # Call findFlights method from FlightGraph class
+        flights_dijkstra = self.flight_graph.findFlights(self.route_data, shortest_path_dijkstra)
+        print(flights_dijkstra)
 
-    # Load airlines using the filterRouteData function from the data module
-    # airline_data is a dictionary containing the IATA code of each airline as the key and the airline data as the value
-    airline_data = filterAirline()
+        start_time = time.time()
+        shortest_path_a_star = self.flight_graph.a_star(source, destination)[1]
+        end_time = time.time()
+        print(f"Execution time of A* algorithm: {end_time - start_time} seconds")
 
-
-    # Print the number of airports and routes in Asia
-    print(f"{len(airport_data)} commercial airports in Asia")
-    print(f"{len(route_data)} routes in Asia")
-
-    try:
-        # Get user to enter IATA Code of starting airport
-        inputAirport = input("Enter starting IATA Code: ")
-
-        # Get user to enter IATA Code of target airport
-        targetAirport = input("Enter target IATA Code: ")
-
-        # Print the data for the starting and target airports
-        # print(airport_data[inputAirport])
-        # print(airport_data[targetAirport])
-
-        # Calculate the distance between inputAirport and targetAirport using the calculateDistance function from the data module
-        distance = calculateDistance(
-            airport_data[inputAirport]["latitude"], airport_data[inputAirport]["longitude"],
-            airport_data[targetAirport]["latitude"], airport_data[targetAirport]["longitude"]
-        )
-        # Print the calculated distance
-        print(f"Distance from {inputAirport} to {targetAirport}: {distance} km")
+        print(f"Shortest path from {source} to {destination} using A* algorithm: {' -> '.join(shortest_path_a_star)}")
+    
+        # Call findFlights method from FlightGraph class
+        flights_a_star = self.flight_graph.findFlights(self.route_data, shortest_path_a_star)
+        print(flights_a_star)
         
-        print("Calculating shortest path...")
-
-
-        # Create a graph from the airport data using the create_graph_kdtree function from the routes module
-        graph = create_graph_kdtree(airport_data)
-
-        # Calculate the shortest path from inputAirport to targetAirport using the calculate_shortest_path function from the routes module
-        shortest_paths = calculate_shortest_path(graph, inputAirport, targetAirport)
-
-        shortest_distances, shortest_path = calculate_shortest_path(graph, inputAirport, targetAirport)
-        print(f"Shortest path from {inputAirport} to {targetAirport}: {' -> '.join(shortest_path)}")
-
-        # Find flights from source to destination
-        findFlights(route_data, shortest_path)
-
-
-    except KeyError as e:
-        # Print an error message if a KeyError occurs (e.g., if inputAirport or targetAirport is not in the airport data)
-        print(f"KeyError: {e}")
-
-# If this script is run directly (not imported as a module), call the main function
 if __name__ == "__main__":
-    main()
-
+    planner = FlightPlanner()
+    planner.create_graph()
+    source = input("Enter starting IATA Code: ")
+    destination = input("Enter target IATA Code: ")
+    planner.find_flights(source, destination)
