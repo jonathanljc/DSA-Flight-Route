@@ -90,7 +90,7 @@ def calculate_shortest_path(graph, starting_vertex, target_vertex=None):
 #     return f"Direct Flights from {path[0]} to {path[-1]}: {', '.join(directFlightsName)}"
 
 def findFlights(route_data, shortest_path):
-    airportsList = shortest_path[:-1]  # Exclude source and destination airports
+    airportsList = shortest_path[:-1]  # Exclude destination airport
     connecting_flights = []
     direct_flights = []
 
@@ -106,16 +106,16 @@ def findFlights(route_data, shortest_path):
                     direct_flights.append(route)
                 else:
                     # if route destination is not airport destination BUT route source is airport source = connecting flight
-                    if route["destination"] != airportsList[-1] and route["source"] == shortest_path[0]:
+                    if route["destination"] != shortest_path[-1] and route["source"] == shortest_path[0]:
                         connecting_flights.append(route)
 
                     # if route source is not airport source BUT route destination IS airport destination = connecting flight
-                    if route["destination"] == airportsList[-1] and route["source"] != shortest_path[0]:
+                    elif route["destination"] == shortest_path[-1] and route["source"] != shortest_path[0]:
                         connecting_flights.append(route)
 
                     # if route source/destination is not airport source AND not airport destination
                     # AND route destination is not airport source = connecting flight
-                    if route["destination"] != airportsList[-1] and route["source"] != shortest_path[0] and route["destination"] != airportsList[0]:
+                    elif route["destination"] != shortest_path[-1] and route["source"] != shortest_path[0] and route["destination"] != shortest_path[0]:
                         connecting_flights.append(route)
 
     if len(direct_flights) == 0:
