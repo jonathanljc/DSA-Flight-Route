@@ -4,7 +4,7 @@
 
 import customtkinter
 from tkintermapview import TkinterMapView
-from data import filterAirportData, calculateDistance, filterRouteData, filterAirportDataFurther
+from flightPlanner import FlightPlanner
 
 
 customtkinter.set_default_color_theme("blue")
@@ -18,9 +18,10 @@ class App(customtkinter.CTk):
 
     def __init__(self, inputAirport, targetAirport, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
+        
         self.inputAirport = inputAirport
         self.targetAirport = targetAirport
+        self.flight_planner = FlightPlanner(inputAirport, targetAirport)
 
         self.title(App.APP_NAME)
         self.geometry(str(App.WIDTH) + "x" + str(App.HEIGHT))
@@ -114,12 +115,10 @@ class App(customtkinter.CTk):
         self.marker_list.append(self.map_widget.set_marker(current_position[0], current_position[1]))
 
     def airport_markers(self):
-        airport_data = filterAirportData()
-
         # These 2 lines are the filter that reduces the list of airports to only airports that has a commercial flight route
         # (remove if unwanted)
-        route_data = filterRouteData(airport_data)
-        airport_data = filterAirportDataFurther(airport_data, route_data)
+       # route_data = filterRouteData(airport_data)
+        airport_data = self.flight_planner.airport_data
 
       # for iata, airport in airport_data.items():
       #      self.map_widget.set_marker(airport["latitude"], airport["longitude"], text=airport["name"])
