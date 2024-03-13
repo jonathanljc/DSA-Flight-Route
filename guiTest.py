@@ -16,8 +16,11 @@ class App(customtkinter.CTk):
     WIDTH = 1300
     HEIGHT = 1000
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, inputAirport, targetAirport, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.inputAirport = inputAirport
+        self.targetAirport = targetAirport
 
         self.title(App.APP_NAME)
         self.geometry(str(App.WIDTH) + "x" + str(App.HEIGHT))
@@ -118,7 +121,10 @@ class App(customtkinter.CTk):
         route_data = filterRouteData(airport_data)
         airport_data = filterAirportDataFurther(airport_data, route_data)
 
-        for iata, airport in airport_data.items():
+      # for iata, airport in airport_data.items():
+      #      self.map_widget.set_marker(airport["latitude"], airport["longitude"], text=airport["name"])
+        for iata in [self.inputAirport, self.targetAirport]:
+            airport = airport_data[iata]
             self.map_widget.set_marker(airport["latitude"], airport["longitude"], text=airport["name"])
 
     # Clear All markers (remove later)

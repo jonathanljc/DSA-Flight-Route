@@ -1,6 +1,7 @@
 # Import necessary functions from the data and routes modules
 from data import filterAirportData, calculateDistance, filterRouteData, filterAirline, filterAirportDataFurther
 from routes import create_graph_kdtree, calculate_shortest_path, findFlights
+from guiTest import App
 
 # Define the main function
 def main():
@@ -62,12 +63,22 @@ def main():
         # Find flights from source to destination
         findFlights(route_data, shortest_path)
 
-
     except KeyError as e:
         # Print an error message if a KeyError occurs (e.g., if inputAirport or targetAirport is not in the airport data)
         print(f"KeyError: {e}")
 
+    return inputAirport, targetAirport
+
 # If this script is run directly (not imported as a module), call the main function
 if __name__ == "__main__":
-    main()
-
+    inputAirport, targetAirport = main()
+    #app = App(inputAirport, targetAirport)
+    #app.start()
+    try:
+        app = App(inputAirport, targetAirport)
+        app.start()
+    except AttributeError as e:
+        if "_PhotoImage__photo" in str(e):
+            pass  # Ignore this specific AttributeError
+        else:
+            raise  # Re-raise any other AttributeError
