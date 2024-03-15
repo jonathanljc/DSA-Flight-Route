@@ -181,10 +181,6 @@ class App(customtkinter.CTk):
         self.planner.create_graph()
         results = self.planner.find_flights(start_iata, destination_iata)
 
-        # For checking the "results" returned from line above
-        # Attributes in the "results" object
-        # dijkstra_time, dijkstra_time_unit, dijkstra_path, dijkstra_direct_flights, dijkstra_connecting_flights
-        # a_star_time, a_star_time_unit, a_star_path, a_star_direct_flights, a_star_connecting_flights
         print(f"Dijkstra's algorithm time(empirical): {results.dijkstra_time} 'seconds'")
         print(f"Dijkstra's algorithm path: {results.dijkstra_path}")
         print(f"Dijkstra's algorithm total distance: {results.dijkstra_total_distance}")
