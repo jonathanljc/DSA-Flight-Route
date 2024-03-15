@@ -1,9 +1,11 @@
 import customtkinter
 import time
+import math
 from tkintermapview import TkinterMapView
 from data import DataFilter
 from routes import FlightGraph
 from flightPlanner import FlightPlanner
+from geopy.geocoders import Nominatim
 
 customtkinter.set_appearance_mode("System")
 customtkinter.set_default_color_theme("blue")
@@ -29,6 +31,9 @@ class App(customtkinter.CTk):
         self.marker_list = []
         self.additional_window = None
         self.planner = None
+        self.results = None
+        self.start_coordinate = None
+        self.destination_coordinate = None
         self.status_variable = customtkinter.Variable()  # Variable to hold the status
 
         # ============ create two CTkFrames ============
@@ -110,18 +115,57 @@ class App(customtkinter.CTk):
 
     # need to be changed
     def open_additional_window(self):
+        
+        if self.status_variable.get() != "Done!":
+            self.status_code.configure(text_color="red")
+            self.status_variable.set("Please search for flights first!")
+            return
+        
         print("Additional Information")
         self.additional_window = customtkinter.CTkToplevel(self)
         self.additional_window.title("Additional Information")
         self.additional_window.geometry("600x600")
         self.additional_window.minsize(600, 600)
         
+    # need to be changed
     def search_event(self, event=None):
+        
+        # Retrieve input values
+        start_iata = self.entry_start.get()
+        destination_iata = self.entry_destination.get()
+
+        if not start_iata or not destination_iata:
+            self.status_code.configure(text_color="red")
+            self.status_variable.set("Please enter both start and destination IATA codes!")
+            return
+        
+        self.set_start_marker(start_iata)
+        self.set_destination_marker(destination_iata)
+        
+        # Determine the bounding box that encompasses both markers
+        min_lat = min(self.start_coordinate[0], self.destination_coordinate[0])
+        max_lat = max(self.start_coordinate[0], self.destination_coordinate[0])
+        min_lon = min(self.start_coordinate[1], self.destination_coordinate[1])
+        max_lon = max(self.start_coordinate[1], self.destination_coordinate[1])
+
+        # Calculate the center of the bounding box
+        center_lat = (min_lat + max_lat) / 2
+        center_lon = (min_lon + max_lon) / 2
+
+        # Calculate the zoom level based on the bounding box dimensions
+        # zoom_level = self.calculate_zoom_level(min_lat, max_lat, min_lon, max_lon)
+
+        # Set the center and zoom level of the map widget
+        self.map_widget.set_position(center_lat, center_lon)
+        self.map_widget.set_zoom(3)
+        self.update()
+        
+        
         # Update status to indicate searching
         self.status_code.configure(text_color="red")
         self.status_variable.set("Searching .... Please Wait...")
         self.update()
-    
+        
         # Retrieve input values
         start_iata = self.entry_start.get()
         destination_iata = self.entry_destination.get()
@@ -131,32 +175,23 @@ class App(customtkinter.CTk):
 
         self.planner = FlightPlanner(start_iata, destination_iata)
         self.planner.create_graph()
-        results = self.planner.find_flights(start_iata, destination_iata)
+        self.results = self.planner.find_flights(start_iata, destination_iata)
 
         # For checking the "results" returned from line above
         # Attributes in the "results" object
         # dijkstra_time, dijkstra_time_unit, dijkstra_path, dijkstra_direct_flights, dijkstra_connecting_flights
         # a_star_time, a_star_time_unit, a_star_path, a_star_direct_flights, a_star_connecting_flights
-        print(f"Dijkstra's algorithm time(empirical): {results.dijkstra_time} 'seconds'")
-        print(f"Dijkstra's algorithm path: {results.dijkstra_path}")
-        print(f"Dijkstra's algorithm total distance: {results.dijkstra_total_distance}")
-        print(f"Dijkstra's algorithm total cost: {results.dijkstra_total_cost}")
-        print(f"Dijkstra's algorithm direct flights: {results.dijkstra_direct_flights}")
-        print(f"Dijkstra's algorithm connecting flights: {results.dijkstra_connecting_flights}")
+        print(results.dijkstra_time)
+        print(results.dijkstra_time_unit)
+        print(results.dijkstra_path)
+        print(results.dijkstra_direct_flights)
+        print(results.dijkstra_connecting_flights)
+        print(results.a_star_time)
+        print(results.a_star_time_unit)
+        print(results.a_star_path)
+        print(results.a_star_direct_flights)
+        print(results.a_star_connecting_flights)
         
-        print(f"A* algorithm time(empirical): {results.a_star_time} 'seconds'")
-        print(f"A* algorithm path: {results.a_star_path}")
-        print(f"A* algorithm total distance: {results.a_star_total_distance}")
-        print(f"A* algorithm total cost: {results.a_star_total_cost}")
-        print(f"A* algorithm direct flights: {results.a_star_direct_flights}")
-        print(f"A* algorithm connecting flights: {results.a_star_connecting_flights}")
-        
-        
-        
-        
-        
-        
-    
         # Do something with the input values
         print("Start IATA:", start_iata)
         print("Destination IATA:", destination_iata)
