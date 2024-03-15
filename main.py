@@ -132,7 +132,22 @@ class App(customtkinter.CTk):
 
         self.planner = FlightPlanner(start_iata, destination_iata)
         self.planner.create_graph()
-        self.planner.find_flights(start_iata, destination_iata)
+        results = self.planner.find_flights(start_iata, destination_iata)
+
+        # For checking the "results" returned from line above
+        # Attributes in the "results" object
+        # dijkstra_time, dijkstra_time_unit, dijkstra_path, dijkstra_direct_flights, dijkstra_connecting_flights
+        # a_star_time, a_star_time_unit, a_star_path, a_star_direct_flights, a_star_connecting_flights
+        print(results.dijkstra_time)
+        print(results.dijkstra_time_unit)
+        print(results.dijkstra_path)
+        print(results.dijkstra_direct_flights)
+        print(results.dijkstra_connecting_flights)
+        print(results.a_star_time)
+        print(results.a_star_time_unit)
+        print(results.a_star_path)
+        print(results.a_star_direct_flights)
+        print(results.a_star_connecting_flights)
         
         # Do something with the input values
         print("Start IATA:", start_iata)

@@ -121,14 +121,17 @@ class FlightGraph:
         # Print direct and connecting flights
         if len(direct_flights) == 0:
             print("No direct flights found.")
-        else:
-            print("Direct Flights:")
-            for flight in direct_flights:
-                print(flight)
+        # else:
+        #     print("Direct Flights:")
+        #     for flight in direct_flights:
+        #         print(flight)
 
         if len(connecting_flights) == 0:
             print("No connecting flights found.")
-        else:
-            print("Connecting Flights:")
-            for flight in connecting_flights:
-                print(flight)
+        # else:
+        #     print("Connecting Flights:")
+        #     for flight in connecting_flights:
+        #         # print(flight)
+        #         print("")
+
+        return direct_flights, connecting_flights
