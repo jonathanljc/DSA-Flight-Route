@@ -14,7 +14,11 @@ if __name__ == "__main__":
     # Create a graph
     planner.create_graph()
     # Find flights from the source to the destination
-    planner.find_flights(source, destination)
+    results = planner.find_flights(source, destination)
+
+    # Print the distances
+    print(f"Distance traveled using Dijkstra's algorithm: {results.dijkstra_total_cost}")
+    print(f"Distance traveled using A* algorithm: {results.a_star_total_cost}")
 
     app = App(source, destination)
     app.start()

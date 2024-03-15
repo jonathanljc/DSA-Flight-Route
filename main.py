@@ -116,13 +116,12 @@ class App(customtkinter.CTk):
         self.additional_window.geometry("600x600")
         self.additional_window.minsize(600, 600)
         
-    # need to be changed
     def search_event(self, event=None):
         # Update status to indicate searching
         self.status_code.configure(text_color="red")
         self.status_variable.set("Searching .... Please Wait...")
         self.update()
-        
+    
         # Retrieve input values
         start_iata = self.entry_start.get()
         destination_iata = self.entry_destination.get()
@@ -138,23 +137,33 @@ class App(customtkinter.CTk):
         # Attributes in the "results" object
         # dijkstra_time, dijkstra_time_unit, dijkstra_path, dijkstra_direct_flights, dijkstra_connecting_flights
         # a_star_time, a_star_time_unit, a_star_path, a_star_direct_flights, a_star_connecting_flights
-        print(results.dijkstra_time)
-        print(results.dijkstra_time_unit)
-        print(results.dijkstra_path)
-        print(results.dijkstra_direct_flights)
-        print(results.dijkstra_connecting_flights)
-        print(results.a_star_time)
-        print(results.a_star_time_unit)
-        print(results.a_star_path)
-        print(results.a_star_direct_flights)
-        print(results.a_star_connecting_flights)
+        print(f"Dijkstra's algorithm time(empirical): {results.dijkstra_time} 'seconds'")
+        print(f"Dijkstra's algorithm path: {results.dijkstra_path}")
+        print(f"Dijkstra's algorithm total distance: {results.dijkstra_total_distance}")
+        print(f"Dijkstra's algorithm total cost: {results.dijkstra_total_cost}")
+        print(f"Dijkstra's algorithm direct flights: {results.dijkstra_direct_flights}")
+        print(f"Dijkstra's algorithm connecting flights: {results.dijkstra_connecting_flights}")
         
+        print(f"A* algorithm time(empirical): {results.a_star_time} 'seconds'")
+        print(f"A* algorithm path: {results.a_star_path}")
+        print(f"A* algorithm total distance: {results.a_star_total_distance}")
+        print(f"A* algorithm total cost: {results.a_star_total_cost}")
+        print(f"A* algorithm direct flights: {results.a_star_direct_flights}")
+        print(f"A* algorithm connecting flights: {results.a_star_connecting_flights}")
+        
+        
+        
+        
+        
+        
+    
         # Do something with the input values
         print("Start IATA:", start_iata)
         print("Destination IATA:", destination_iata)
 
+        # Update status to indicate search is complete
         self.status_code.configure(text_color="green")
-        self.status_variable.set("Done!")
+        self.status_variable.set("Search Complete")
 
         
     # need to be changed

@@ -3,14 +3,24 @@ from routes import FlightGraph
 import time
 
 class resultsObj(object):
-    # Attributes that will be set in this class through the find_flights() below
-    # dijkstra_time, dijkstra_time_unit, dijkstra_path, dijkstra_direct_flights, dijkstra_connecting_flights
-    # a_star_time, a_star_time_unit, a_star_path, a_star_direct_flights, a_star_connecting_flights
     def __init__(self):
-        pass
+        self.dijkstra_time = None
+        self.dijkstra_time_unit = None
+        self.dijkstra_path = None
+        self.dijkstra_direct_flights = None
+        self.dijkstra_connecting_flights = None
+        self.dijkstra_total_distance = None 
+        self.dijkstra_total_cost= None 
+        self.a_star_time = None
+        self.a_star_time_unit = None
+        self.a_star_path = None
+        self.a_star_direct_flights = None
+        self.a_star_connecting_flights = None
+        self.a_star_total_distance = None
+        self.a_star_total_cost= None 
+        
 
 class FlightPlanner:
-    # Initialize the flight planner with data filter, airport data, route data, airline data, and flight graph
     def __init__(self, source, destination, *args, **kwargs):
         self.data_filter = DataFilter()
         self.airport_data = self.data_filter.airport_data
@@ -18,42 +28,29 @@ class FlightPlanner:
         self.airline_data = self.data_filter.airline_data
         self.flight_graph = FlightGraph(self.airport_data)
 
-
-    # Create a graph using the flight graph
     def create_graph(self):
         self.graph = self.flight_graph.graph
 
-    # Find flights from a source to a destination
     def find_flights(self, source, destination):
         results = resultsObj()
-        # Calculate the shortest path using Dijkstra's algorithm and measure the execution time
         start_time = time.time()
-        shortest_path_dijkstra = self.flight_graph.calculate_shortest_path(source, destination)[1]
+        dijkstra_result = self.flight_graph.calculate_shortest_path(source, destination)
         end_time = time.time()
-        print(f"Execution time of Dijkstra's algorithm: {end_time - start_time} seconds")
         results.dijkstra_time = end_time-start_time
-        results.dijkstra_time_unit = "second"
-
-        # Print the shortest path
-        print(f"Shortest path from {source} to {destination} using Dijkstra's algorithm: {' -> '.join(shortest_path_dijkstra)}")
-        results.dijkstra_path = shortest_path_dijkstra
-    
-        # Find flights for the shortest path
-        results.dijkstra_direct_flights, results.dijkstra_connecting_flights = self.flight_graph.findFlights(self.route_data, shortest_path_dijkstra)
-
-        # Calculate the shortest path using A* algorithm and measure the execution time
+        results.dijkstra_path = dijkstra_result[1]
+        results.dijkstra_total_distance = dijkstra_result[0]  # Store Dijkstra's total cost
+        results.dijkstra_total_cost=len(results.dijkstra_path)
+        results.dijkstra_direct_flights, results.dijkstra_connecting_flights = self.flight_graph.findFlights(self.route_data, results.dijkstra_path)
+        
+        
         start_time = time.time()
-        shortest_path_a_star = self.flight_graph.a_star(source, destination)[1]
+        a_star_result = self.flight_graph.a_star(source, destination)
         end_time = time.time()
-        print(f"Execution time of A* algorithm: {end_time - start_time} seconds")
         results.a_star_time = end_time-start_time
-        results.a_star_time_unit = "second"
-
-        # Print the shortest path
-        print(f"Shortest path from {source} to {destination} using A* algorithm: {' -> '.join(shortest_path_a_star)}")
-        results.a_star_path = shortest_path_a_star
-    
-        # Find flights for the shortest path
-        results.a_star_direct_flights, results.a_star_connecting_flights = self.flight_graph.findFlights(self.route_data, shortest_path_a_star)
+        results.a_star_path = a_star_result[1]
+        results.a_star_total_distance = a_star_result[0]  # Store A* total cost
+        results.a_star_total_cost=len(results.a_star_path)
+        results.a_star_direct_flights, results.a_star_connecting_flights = self.flight_graph.findFlights(self.route_data, results.a_star_path)
+        
 
         return results

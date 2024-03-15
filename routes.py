@@ -55,22 +55,8 @@ class FlightGraph:
             path.append(current_vertex)
             current_vertex = previous_vertices[current_vertex]
         path = path[::-1]
-
-        return shortest_distances, path
-
-    # Reconstruct the path from start to goal
-    def reconstruct_path(self, came_from, start, goal):
-        current = goal
-        path = []
-        while current is not None:
-            path.append(current)
-            current = came_from[current]
-        path.reverse()  # Reverse the path to get it from start to goal
-        return path
-
-    # Heuristic function for A* algorithm
-    def heuristic(self, a, b):
-        return abs(b[0] - a[0]) + abs(b[1] - a[1])
+        costed_path = [(path[i], path[i+1], self.graph[path[i]][path[i+1]]) for i in range(len(path)-1)]
+        return shortest_distances[target_vertex], costed_path  # Return the total cost and the costed path
 
     # A* algorithm to find the shortest path from start to goal
     def a_star(self, start, goal):
@@ -93,7 +79,23 @@ class FlightGraph:
                     heapq.heappush(queue, (priority, neighbor))
                     came_from[neighbor] = current
 
-        return scores, self.reconstruct_path(came_from, start, goal)
+        path = self.reconstruct_path(came_from, start, goal)
+        costed_path = [(path[i], path[i+1], self.graph[path[i]][path[i+1]]) for i in range(len(path)-1)]
+        return scores[goal], costed_path  # Return the total cost and the costed path
+
+    # Reconstruct the path from start to goal
+    def reconstruct_path(self, came_from, start, goal):
+        current = goal
+        path = []
+        while current is not None:
+            path.append(current)
+            current = came_from[current]
+        path.reverse()  # Reverse the path to get it from start to goal
+        return path
+
+    # Heuristic function for A* algorithm
+    def heuristic(self, a, b):
+        return abs(b[0] - a[0]) + abs(b[1] - a[1])
 
     # Find flights for a given route data and shortest path
     def findFlights(self, route_data, shortest_path):
@@ -104,34 +106,32 @@ class FlightGraph:
         # Loop through all airports in the shortest path
         for airport in airportsList:
             departing_routes = [route for route in route_data if route["source"] == airport]
+            
 
             # Loop through all departing routes from the current airport
             for route in departing_routes:
                 if route["destination"] in shortest_path:
+                    # Calculate the cost of the flight
+                    cost = self.graph[route["source"]][route["destination"]]
+                    # Add the cost to the route dictionary
+                    route_with_cost = {**route, 'cost': cost}
+
                     if route["destination"] == shortest_path[-1] and route["source"] == shortest_path[0]:
-                        direct_flights.append(route)
+                        direct_flights.append(route_with_cost)
                     else:
                         if route["destination"] != shortest_path[-1] and route["source"] == shortest_path[0]:
-                            connecting_flights.append(route)
+                            connecting_flights.append(route_with_cost)
                         elif route["destination"] == shortest_path[-1] and route["source"] != shortest_path[0]:
-                            connecting_flights.append(route)
+                            connecting_flights.append(route_with_cost)
                         elif route["destination"] != shortest_path[-1] and route["source"] != shortest_path[0] and route["destination"] != shortest_path[0]:
-                            connecting_flights.append(route)
+                            connecting_flights.append(route_with_cost)
 
         # Print direct and connecting flights
-        if len(direct_flights) == 0:
-            print("No direct flights found.")
-        # else:
-        #     print("Direct Flights:")
-        #     for flight in direct_flights:
-        #         print(flight)
+        #if len(direct_flights) == 0:
+            #print("No direct flights found.")
 
-        if len(connecting_flights) == 0:
-            print("No connecting flights found.")
-        # else:
-        #     print("Connecting Flights:")
-        #     for flight in connecting_flights:
-        #         # print(flight)
-        #         print("")
+        #if len(connecting_flights) == 0:
+            #print("No connecting flights found.")
+            
 
         return direct_flights, connecting_flights
