@@ -132,7 +132,7 @@ class App(customtkinter.CTk):
         scrollable_frame.pack(fill="both", expand=True)
         
         # Create labels for each result        
-        dijkstra_path_label = customtkinter.CTkLabel(scrollable_frame, text=f"Dijkstra Path: {' -> '.join(self.results.dijkstra_path)}")
+        dijkstra_path_label = customtkinter.CTkLabel(scrollable_frame, text=f"Dijkstra Path: {' -> '.join(self.results.dijkstra_path_easy)}")
         dijkstra_path_label.pack()
 
         dijkstra_direct_flights_label = customtkinter.CTkLabel(scrollable_frame, text="Dijkstra Direct Flights:")
@@ -147,7 +147,7 @@ class App(customtkinter.CTk):
             flight_label = customtkinter.CTkLabel(scrollable_frame, text=f"Source: {flight['source']}, Destination: {flight['destination']}, Airline ID: {flight['airlineID']}")
             flight_label.pack()
             
-        a_star_path_label = customtkinter.CTkLabel(scrollable_frame, text=f"A* Path: {' -> '.join(self.results.a_star_path)}")
+        a_star_path_label = customtkinter.CTkLabel(scrollable_frame, text=f"A* Path: {' -> '.join(self.results.a_star_path_easy)}")
         a_star_path_label.pack()
 
 
@@ -166,7 +166,7 @@ class App(customtkinter.CTk):
     def set_start_marker(self, start_iata):
         # Use geopy to get the coordinates of the start location based on the IATA code
         geolocator = Nominatim(user_agent="flightRouteMeasurements")
-        start_location = geolocator.geocode(start_iata)
+        start_location = geolocator.geocode(start_iata + " airport")
 
         if start_location:
             # Extract latitude and longitude
@@ -179,7 +179,7 @@ class App(customtkinter.CTk):
     def set_destination_marker(self, destination_iata):
         # Use geopy to get the coordinates of the destination location based on the IATA code
         geolocator = Nominatim(user_agent="flightRouteMeasurements")
-        destination_location = geolocator.geocode(destination_iata)
+        destination_location = geolocator.geocode(destination_iata + " airport")
 
         if destination_location:
             # Extract latitude and longitude
@@ -253,25 +253,25 @@ class App(customtkinter.CTk):
 
         self.planner = FlightPlanner(start_iata, destination_iata)
         self.planner.create_graph()
-        results = self.planner.find_flights(start_iata, destination_iata)
+        self.results = self.planner.find_flights(start_iata, destination_iata)
 
-        # For checking the "results" returned from line above
-        # Attributes in the "results" object
+        # For checking the "self.results" returned from line above
+        # Attributes in the "self.results" object
         # dijkstra_time, dijkstra_time_unit, dijkstra_path, dijkstra_direct_flights, dijkstra_connecting_flights
         # a_star_time, a_star_time_unit, a_star_path, a_star_direct_flights, a_star_connecting_flights
-        print(f"Dijkstra's algorithm time(empirical): {results.dijkstra_time} 'seconds'")
-        print(f"Dijkstra's algorithm path: {results.dijkstra_path}")
-        print(f"Dijkstra's algorithm total distance: {results.dijkstra_total_distance}")
-        print(f"A* algorithm total cost: {results.dijkstra_total_cost}")
-        print(f"Dijkstra's algorithm direct flights: {results.dijkstra_direct_flights}")
-        print(f"Dijkstra's algorithm connecting flights: {results.dijkstra_connecting_flights}")
+        print(f"Dijkstra's algorithm time(empirical): {self.results.dijkstra_time} 'seconds'")
+        print(f"Dijkstra's algorithm path: {self.results.dijkstra_path}")
+        print(f"Dijkstra's algorithm total distance: {self.results.dijkstra_total_distance}")
+        print(f"A* algorithm total cost: {self.results.dijkstra_total_cost}")
+        print(f"Dijkstra's algorithm direct flights: {self.results.dijkstra_direct_flights}")
+        print(f"Dijkstra's algorithm connecting flights: {self.results.dijkstra_connecting_flights}")
         
-        print(f"A* algorithm time(empirical): {results.a_star_time} 'seconds'")
-        print(f"A* algorithm path: {results.a_star_path}")
-        print(f"A* algorithm total distance: {results.a_star_total_distance}")
-        print(f"A* algorithm total cost: {results.a_star_total_cost}")
-        print(f"A* algorithm direct flights: {results.a_star_direct_flights}")
-        print(f"A* algorithm connecting flights: {results.a_star_connecting_flights}")
+        print(f"A* algorithm time(empirical): {self.results.a_star_time} 'seconds'")
+        print(f"A* algorithm path: {self.results.a_star_path}")
+        print(f"A* algorithm total distance: {self.results.a_star_total_distance}")
+        print(f"A* algorithm total cost: {self.results.a_star_total_cost}")
+        print(f"A* algorithm direct flights: {self.results.a_star_direct_flights}")
+        print(f"A* algorithm connecting flights: {self.results.a_star_connecting_flights}")
         
         # Do something with the input values
         print("Start IATA:", start_iata)

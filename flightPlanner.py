@@ -7,6 +7,7 @@ class resultsObj(object):
         self.dijkstra_time = None
         self.dijkstra_time_unit = None
         self.dijkstra_path = None
+        self.dijkstra_path_easy = []
         self.dijkstra_direct_flights = None
         self.dijkstra_connecting_flights = None
         self.dijkstra_total_distance = None 
@@ -14,6 +15,7 @@ class resultsObj(object):
         self.a_star_time = None
         self.a_star_time_unit = None
         self.a_star_path = None
+        self.a_star_path_easy = []
         self.a_star_direct_flights = None
         self.a_star_connecting_flights = None
         self.a_star_total_distance = None
@@ -42,12 +44,11 @@ class FlightPlanner:
         results.dijkstra_total_distance = dijkstra_result[0]  # Store Dijkstra's total cost
         results.dijkstra_total_cost=len(results.dijkstra_path)# Read the number of paths
 
-        pathForFlights = []
         for x in range(len(dijkstra_result[1])):
-            pathForFlights.append(dijkstra_result[1][x][0])
+            results.dijkstra_path_easy.append(dijkstra_result[1][x][0])
             if x == (len(dijkstra_result[1])-1):
-                pathForFlights.append(dijkstra_result[1][x][1])
-        results.dijkstra_direct_flights, results.dijkstra_connecting_flights = self.flight_graph.findFlights(self.route_data, pathForFlights)
+                results.dijkstra_path_easy.append(dijkstra_result[1][x][1])
+        results.dijkstra_direct_flights, results.dijkstra_connecting_flights = self.flight_graph.findFlights(self.route_data, results.dijkstra_path_easy)
         
         
         start_time = time.time() #emperical reading start
@@ -58,12 +59,11 @@ class FlightPlanner:
         results.a_star_total_distance = a_star_result[0]  # Store A* total cost
         results.a_star_total_cost=len(results.a_star_path) # Read the number of paths
 
-        pathForFlights2 = []
         for x in range(len(a_star_result[1])):
-            pathForFlights2.append(a_star_result[1][x][0])
+            results.a_star_path_easy.append(a_star_result[1][x][0])
             if x == (len(a_star_result[1])-1):
-                pathForFlights2.append(a_star_result[1][x][1])
-        results.a_star_direct_flights, results.a_star_connecting_flights = self.flight_graph.findFlights(self.route_data, pathForFlights2)
+                results.a_star_path_easy.append(a_star_result[1][x][1])
+        results.a_star_direct_flights, results.a_star_connecting_flights = self.flight_graph.findFlights(self.route_data, results.a_star_path_easy)
         
 
         return results
