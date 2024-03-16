@@ -316,19 +316,36 @@ class App(customtkinter.CTk):
             # Attributes in the "results" object
             # dijkstra_time, dijkstra_time_unit, dijkstra_path, dijkstra_direct_flights, dijkstra_connecting_flights
             # a_star_time, a_star_time_unit, a_star_path, a_star_direct_flights, a_star_connecting_flights
-            # print(f"Dijkstra's algorithm time(empirical): {self.results.dijkstra_time} 'seconds'")
-            # print(f"Dijkstra's algorithm path: {self.results.dijkstra_path}")
-            # print(f"Dijkstra's algorithm total distance: {self.results.dijkstra_total_distance}")
-            # print(f"A* algorithm total cost: {self.results.dijkstra_total_cost}")
+            print(f"Dijkstra's algorithm time(empirical): {self.results.dijkstra_time} 'seconds'")
+            print(f"Dijkstra's algorithm path: {self.results.dijkstra_path}")
+            print(f"Dijkstra's algorithm total distance: {self.results.dijkstra_total_distance}")
+            print(f"A* algorithm total cost: {self.results.dijkstra_total_cost}")
             # print(f"Dijkstra's algorithm direct flights: {self.results.dijkstra_direct_flights}")
             # print(f"Dijkstra's algorithm connecting flights: {self.results.dijkstra_connecting_flights}")
+            print(f"Dijkstra's algorithm all paths: {self.results.dijkstra_all_paths}")
+            print(f"Dijkstra's algorithm all explored paths: {self.results.dijkstra_total_cost_path}")  # Print all explored paths
             
-            # print(f"A* algorithm time(empirical): {self.results.a_star_time} 'seconds'")
-            # print(f"A* algorithm path: {self.results.a_star_path}")
-            # print(f"A* algorithm total distance: {self.results.a_star_total_distance}")
-            # print(f"A* algorithm total cost: {self.results.a_star_total_cost}")
+            print(f"A* algorithm time(empirical): {self.results.a_star_time} 'seconds'")
+            print(f"A* algorithm path: {self.results.a_star_path}")
+            print(f"A* algorithm total distance: {self.results.a_star_total_distance}")
+            print(f"A* algorithm total cost: {self.results.a_star_total_cost}")
             # print(f"A* algorithm direct flights: {self.results.a_star_direct_flights}")
             # print(f"A* algorithm connecting flights: {self.results.a_star_connecting_flights}")
+            print(f"A* algorithm all paths: {self.results.a_star_all_paths}")
+            print(f"A* algorithm all explored paths: {self.results.a_star_total_cost_path}")  # Print all explored paths
+            
+            # print the results of the Bellman-Ford algorithm
+            print(f"Bellman-Ford algorithm time(empirical): {self.results.bellman_ford_time} 'seconds'")
+            print(f"Bellman-Ford algorithm path: {self.results.bellman_ford_path}")
+            print(f"Bellman-Ford algorithm total distance: {self.results.bellman_ford_total_distance}")
+            print(f"Bellman-Ford algorithm total cost: {self.results.bellman_ford_total_cost}")
+            #print(f"Bellman-Ford algorithm direct flights: {self.results.bellman_ford_direct_flights}")
+            #print(f"Bellman-Ford algorithm connecting flights: {self.results.bellman_ford_connecting_flights}")
+            print(f"Bellman-Ford algorithm all paths: {self.results.bellman_ford_all_paths}")
+            print(f"Bellman-Ford algorithm all explored paths: {self.results.bellman_ford_all_total_cost_path}")
+            
+            
+            
             
             # Do something with the input values
             print("Start IATA:", start_iata)

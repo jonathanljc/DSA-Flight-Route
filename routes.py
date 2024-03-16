@@ -34,6 +34,9 @@ class FlightGraph:
         shortest_distances[starting_vertex] = 0
         previous_vertices = {vertex: None for vertex in self.graph}
         heap = [(0, starting_vertex)]
+        all_paths = {starting_vertex: [[starting_vertex]]}  # Add a dictionary to keep track of all paths
+        all_explored_paths = []  # List to store all explored paths
+        
 
         while len(heap) > 0:
             current_distance, current_vertex = heapq.heappop(heap)
@@ -48,6 +51,8 @@ class FlightGraph:
                     shortest_distances[neighbor] = distance
                     previous_vertices[neighbor] = current_vertex
                     heapq.heappush(heap, (distance, neighbor))
+                    all_paths[neighbor] = [path + [neighbor] for path in all_paths[current_vertex]]  # Update the paths for the neighbor
+                    all_explored_paths.extend(all_paths[neighbor])  # Add all new paths to all_explored_paths
 
         path = []
         current_vertex = target_vertex
@@ -56,7 +61,7 @@ class FlightGraph:
             current_vertex = previous_vertices[current_vertex]
         path = path[::-1]
         costed_path = [(path[i], path[i+1], self.graph[path[i]][path[i+1]]) for i in range(len(path)-1)]
-        return shortest_distances[target_vertex], costed_path  # Return the total cost and the costed path
+        return shortest_distances[target_vertex], costed_path, all_paths[target_vertex], all_explored_paths  # Return the total cost, the costed path, all paths to the target, and all explored paths
 
     # A* algorithm to find the shortest path from start to goal
     def a_star(self, start, goal):
@@ -64,6 +69,8 @@ class FlightGraph:
         heapq.heappush(queue, (0, start))
         scores = {start: 0}
         came_from = {start: None}
+        all_paths={start:[[start]]}
+        all_explored_paths=[]
 
         while queue:
             _, current = heapq.heappop(queue)
@@ -78,10 +85,13 @@ class FlightGraph:
                     priority = tentative_score + self.heuristic((self.airport_data[goal]["latitude"], self.airport_data[goal]["longitude"]), (self.airport_data[neighbor]["latitude"], self.airport_data[neighbor]["longitude"]))
                     heapq.heappush(queue, (priority, neighbor))
                     came_from[neighbor] = current
+                    all_paths[neighbor] = [path + [neighbor] for path in all_paths[current]]
+                    all_explored_paths.extend(all_paths[neighbor])  # Add all new paths to all_explored_paths
+
 
         path = self.reconstruct_path(came_from, start, goal)
         costed_path = [(path[i], path[i+1], self.graph[path[i]][path[i+1]]) for i in range(len(path)-1)]
-        return scores[goal], costed_path  # Return the total cost and the costed path
+        return scores[goal], costed_path, all_paths[goal], all_explored_paths  # Return the total cost and the costed path
 
     # Reconstruct the path from start to goal
     def reconstruct_path(self, came_from, start, goal):
@@ -96,7 +106,39 @@ class FlightGraph:
     # Heuristic function for A* algorithm
     def heuristic(self, a, b):
         return abs(b[0] - a[0]) + abs(b[1] - a[1])
+    
+    # Bellman Ford algorithm to find the shortest path from start to goal
+    def bellman_ford(self, start, goal):
+        distance = {vertex: float('infinity') for vertex in self.graph}
+        distance[start] = 0
+        predecessor = {vertex: None for vertex in self.graph}
+        all_paths = {start: [[start]]}  # Add a dictionary to keep track of all paths
+        all_explored_paths = []  # List to store all explored paths
+        
 
+        for _ in range(len(self.graph) - 1):
+            for vertex in self.graph:
+                for neighbor in self.graph[vertex]:
+                    new_distance = distance[vertex] + self.graph[vertex][neighbor]
+                    if new_distance < distance[neighbor]:
+                        distance[neighbor] = new_distance
+                        predecessor[neighbor] = vertex
+                        all_paths[neighbor] = [path + [neighbor] for path in all_paths[vertex]]  # Update the paths for the neighbor
+                        all_explored_paths.extend(all_paths[neighbor])  # Add all new paths to all_explored_paths
+
+        for vertex in self.graph:
+            for neighbor in self.graph[vertex]:
+                assert distance[neighbor] <= distance[vertex] + self.graph[vertex][neighbor], "Graph contains a negative-weight cycle"
+
+        path = []
+        current_vertex = goal
+        while current_vertex is not None:
+            path.append(current_vertex)
+            current_vertex = predecessor[current_vertex]
+        path = path[::-1]
+        costed_path = [(path[i], path[i+1], self.graph[path[i]][path[i+1]]) for i in range(len(path)-1)]
+        return distance[goal], costed_path, all_paths[goal], all_explored_paths  # Return the total cost, the costed path, all paths to the goal, and all explored paths
+        
     # Find flights for a given route data and shortest path
     def findFlights(self, route_data, shortest_path):
         airportsList = shortest_path[:-1]  # Exclude destination airport
