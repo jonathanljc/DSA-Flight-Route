@@ -6,6 +6,7 @@ from data import DataFilter
 from routes import FlightGraph
 from flightPlanner import FlightPlanner
 from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderTimedOut
 
 customtkinter.set_appearance_mode("System")
 customtkinter.set_default_color_theme("blue")
@@ -34,6 +35,7 @@ class App(customtkinter.CTk):
         self.results = None
         self.start_coordinate = None
         self.destination_coordinate = None
+        self.airport_data = DataFilter.filter_airport_data(self)
         self.status_variable = customtkinter.Variable()  # Variable to hold the status
 
         # ============ create two CTkFrames ============
@@ -83,10 +85,10 @@ class App(customtkinter.CTk):
         
         self.status_label = customtkinter.CTkLabel(self.frame_left, 
                                                    text="Status:")
-        self.status_label.grid(row=9, column=0, padx=(20, 20), pady=(50, 0))
+        self.status_label.grid(row=9, column=0, padx=(20, 20), pady=(45, 0))
         
-        self.status_code = customtkinter.CTkLabel(self.frame_left, textvariable=self.status_variable)
-        self.status_code.grid(row=10, column=0, padx=(20, 20), pady=(1, 0))
+        self.status_code = customtkinter.CTkLabel(self.frame_left, textvariable=self.status_variable, wraplength=140, justify="center")
+        self.status_code.grid(row=10, column=0, padx=(10, 10), pady=(1, 0))
 
 
         # ============ frame_right ============
@@ -113,10 +115,10 @@ class App(customtkinter.CTk):
         self.status_variable.set("Ready!")
 
 
-    # need to be changed
+    # additional window for displaying all search information
     def open_additional_window(self):
         
-        if self.status_variable.get() != "Done!":
+        if self.status_variable.get() != "Search Completed!":
             self.status_code.configure(text_color="red")
             self.status_variable.set("Please search for flights first!")
             return
@@ -127,67 +129,108 @@ class App(customtkinter.CTk):
         self.additional_window.geometry("600x600")
         self.additional_window.minsize(600, 600)
         
+        # Set the additional window to be always on top
+        self.additional_window.attributes("-topmost", True)
+
+        
         # Create a scrollable frame with a black background
         scrollable_frame = customtkinter.CTkScrollableFrame(self.additional_window, bg_color="black", label_text="Search Results")
         scrollable_frame.pack(fill="both", expand=True)
         
-        # Create labels for each result        
+        # Create labels to display information
         dijkstra_path_label = customtkinter.CTkLabel(scrollable_frame, text=f"Dijkstra Path: {' -> '.join(self.results.dijkstra_path_easy)}")
         dijkstra_path_label.pack()
 
-        dijkstra_direct_flights_label = customtkinter.CTkLabel(scrollable_frame, text="Dijkstra Direct Flights:")
-        dijkstra_direct_flights_label.pack()
-        for flight in self.results.dijkstra_direct_flights:
-            flight_label = customtkinter.CTkLabel(scrollable_frame, text=f"Source: {flight['source']}, Destination: {flight['destination']}, Airline ID: {flight['airlineID']}")
-            flight_label.pack()
+        # Display the Dijkstra algorithm path
+        for index, segment in enumerate(self.results.dijkstra_path):
+            location1, location2, distance = segment
+            path_label = customtkinter.CTkLabel(scrollable_frame, text=f"{index+1}. {location1} -> {location2} (Distance: {distance:.2f} km)")
+            path_label.pack()
 
-        dijkstra_connecting_flights_label = customtkinter.CTkLabel(scrollable_frame, text="Dijkstra Connecting Flights:")
-        dijkstra_connecting_flights_label.pack()
-        for flight in self.results.dijkstra_connecting_flights:
-            flight_label = customtkinter.CTkLabel(scrollable_frame, text=f"Source: {flight['source']}, Destination: {flight['destination']}, Airline ID: {flight['airlineID']}")
-            flight_label.pack()
-            
+        # Display total distance for Dijkstra's algorithm
+        total_distance_label = customtkinter.CTkLabel(scrollable_frame, text=f"Total Distance: {self.results.dijkstra_total_distance:.2f} km")
+        total_distance_label.pack()
+
+        # Create labels to display information for A* algorithm
         a_star_path_label = customtkinter.CTkLabel(scrollable_frame, text=f"A* Path: {' -> '.join(self.results.a_star_path_easy)}")
         a_star_path_label.pack()
 
+        # Display the A* algorithm path
+        for index, segment in enumerate(self.results.a_star_path):
+            location1, location2, distance = segment
+            path_label = customtkinter.CTkLabel(scrollable_frame, text=f"{index+1}. {location1} -> {location2} (Distance: {distance:.2f} km)")
+            path_label.pack()
 
-        a_star_direct_flights_label = customtkinter.CTkLabel(scrollable_frame, text="A* Direct Flights:")
-        a_star_direct_flights_label.pack()
-        for flight in self.results.a_star_direct_flights:
-            flight_label = customtkinter.CTkLabel(scrollable_frame, text=f"Source: {flight['source']}, Destination: {flight['destination']}, Airline ID: {flight['airlineID']}")
-            flight_label.pack()
-
-        a_star_connecting_flights_label = customtkinter.CTkLabel(scrollable_frame, text="A* Connecting Flights:")
-        a_star_connecting_flights_label.pack()
-        for flight in self.results.a_star_connecting_flights:
-            flight_label = customtkinter.CTkLabel(scrollable_frame, text=f"Source: {flight['source']}, Destination: {flight['destination']}, Airline ID: {flight['airlineID']}")
-            flight_label.pack()
+        # Display total distance for A* algorithm
+        total_distance_label = customtkinter.CTkLabel(scrollable_frame, text=f"Total Distance (A*): {self.results.a_star_total_distance:.2f} km")
+        total_distance_label.pack()
         
+        # Add a button to close the additional window
+        close_button = customtkinter.CTkButton(self.additional_window, text="Close", command=self.additional_window.destroy)
+        close_button.pack()
+        
+    # set start marker
     def set_start_marker(self, start_iata):
-        # Use geopy to get the coordinates of the start location based on the IATA code
-        geolocator = Nominatim(user_agent="flightRouteMeasurements")
-        start_location = geolocator.geocode(start_iata + " airport")
+        try: 
+            # Use geopy to get the coordinates of the start location based on the IATA code
+            geolocator = Nominatim(user_agent="flightRouteMeasurements")
+            searchQuery = start_iata + " Airport"
+            start_location = geolocator.geocode(searchQuery)
 
-        if start_location:
-            # Extract latitude and longitude
-            start_lat, start_lon = start_location.latitude, start_location.longitude
-            # Set marker on the map widget
-            self.map_widget.set_marker(start_lat, start_lon)
-            self.start_coordinate = (start_lat, start_lon)
+            if start_location:
+                # Extract latitude and longitude
+                start_lat, start_lon = start_location.latitude, start_location.longitude
+                # Set marker on the map widget
+                startMarker = self.map_widget.set_marker(start_lat, start_lon)
+                startMarker.set_text(start_iata)
+                
+                
+                if start_iata not in self.airport_data:
+                    self.show_error_message(f"Start location ({start_iata}) is not a valid airport in Asia.")
+                    self.start_coordinate = None
+                    self.map_widget.set_position(start_lat, start_lon)
+                    self.map_widget.set_zoom(3)
+                    self.update()
+                    return 
+                
+                self.start_coordinate = (start_lat, start_lon)
         
-    
-    def set_destination_marker(self, destination_iata):
-        # Use geopy to get the coordinates of the destination location based on the IATA code
-        geolocator = Nominatim(user_agent="flightRouteMeasurements")
-        destination_location = geolocator.geocode(destination_iata + " airport")
+        except GeocoderTimedOut:
+            self.show_error_message("Geocoding service timed out while fetching start location.")
 
-        if destination_location:
-            # Extract latitude and longitude
-            dest_lat, dest_lon = destination_location.latitude, destination_location.longitude
-            # Set marker on the map widget
-            self.map_widget.set_marker(dest_lat, dest_lon)
-            self.destination_coordinate = (dest_lat, dest_lon)
-             
+    # set destination marker
+    def set_destination_marker(self, destination_iata):
+        try:
+            # Use geopy to get the coordinates of the destination location based on the IATA code
+            geolocator = Nominatim(user_agent="flightRouteMeasurements")
+            searchQuery = destination_iata + " Airport"
+            destination_location = geolocator.geocode(searchQuery)
+
+            if destination_location:
+                # Extract latitude and longitude
+                dest_lat, dest_lon = destination_location.latitude, destination_location.longitude
+                # Set marker on the map widget
+                destMarker = self.map_widget.set_marker(dest_lat, dest_lon)
+                destMarker.set_text(destination_iata)
+                
+                if not self.start_coordinate:
+                    return
+                
+                # Check if the location is in Asia
+                if destination_iata not in self.airport_data:
+                    self.show_error_message(f"Destination location ({destination_iata}) is not a valid airport in Asia.")
+                    self.destination_coordinate = None
+                    self.map_widget.set_position(dest_lat, dest_lon)
+                    self.map_widget.set_zoom(3)
+                    self.update()
+                    return
+                
+                self.destination_coordinate = (dest_lat, dest_lon)
+                
+        except GeocoderTimedOut:
+            self.show_error_message("Geocoding service timed out while fetching destination location.")
+   
+   # calculate zoom level
     def calculate_zoom_level(self, min_lat, max_lat, min_lon, max_lon):
         # Calculate the distance between the markers
         lat_distance = max_lat - min_lat
@@ -204,6 +247,7 @@ class App(customtkinter.CTk):
         # Use the smaller of the two zoom levels
         return min(lat_zoom, lon_zoom)
 
+    # calculate zoom
     def calculate_zoom(self, distance):
         # Calculate the zoom level based on the distance
         # This is a simplified calculation, you may need to adjust it based on your map widget's specifications
@@ -211,76 +255,162 @@ class App(customtkinter.CTk):
 
     # Search route from start to destination
     def search_event(self, event=None):
-        
-        # Retrieve input values
-        start_iata = self.entry_start.get()
-        destination_iata = self.entry_destination.get()
+        try:
+            # Retrieve input values
+            start_iata = self.entry_start.get()
+            destination_iata = self.entry_destination.get()
 
-        if not start_iata or not destination_iata:
+            if not start_iata or not destination_iata:
+                self.status_code.configure(text_color="red")
+                self.status_variable.set("Please enter both start and destination IATA codes!")
+                return
+            
             self.status_code.configure(text_color="red")
-            self.status_variable.set("Please enter both start and destination IATA codes!")
-            return
-        
-        self.set_start_marker(start_iata)
-        self.set_destination_marker(destination_iata)
-        
-        # Determine the bounding box that encompasses both markers
-        min_lat = min(self.start_coordinate[0], self.destination_coordinate[0])
-        max_lat = max(self.start_coordinate[0], self.destination_coordinate[0])
-        min_lon = min(self.start_coordinate[1], self.destination_coordinate[1])
-        max_lon = max(self.start_coordinate[1], self.destination_coordinate[1])
+            self.status_variable.set("Checking IATA codes and Setting markers ...")
+            self.update()
 
-        # Calculate the center of the bounding box
-        center_lat = (min_lat + max_lat) / 2
-        center_lon = (min_lon + max_lon) / 2
+            self.map_widget.delete_all_marker()
+            self.map_widget.delete_all_path()
+            self.set_start_marker(start_iata)
+            self.set_destination_marker(destination_iata)
+            self.update()
+            
+            if not self.start_coordinate or not self.destination_coordinate:
+                # Update status to indicate searching
+                self.status_code.configure(text_color="red")
+                self.status_variable.set("Airports outside of Asia are not supported.")
+                self.update()
+                return
+            
+            # Determine the bounding box that encompasses both markers
+            min_lat = min(self.start_coordinate[0], self.destination_coordinate[0])
+            max_lat = max(self.start_coordinate[0], self.destination_coordinate[0])
+            min_lon = min(self.start_coordinate[1], self.destination_coordinate[1])
+            max_lon = max(self.start_coordinate[1], self.destination_coordinate[1])
 
-        # Calculate the zoom level based on the bounding box dimensions
-        # zoom_level = self.calculate_zoom_level(min_lat, max_lat, min_lon, max_lon)
+            # Calculate the center of the bounding box
+            center_lat = (min_lat + max_lat) / 2
+            center_lon = (min_lon + max_lon) / 2
 
-        # Set the center and zoom level of the map widget
-        self.map_widget.set_position(center_lat, center_lon)
-        self.map_widget.set_zoom(3)
-        self.update()
-        
-        
-        # Update status to indicate searching
-        self.status_code.configure(text_color="red")
-        self.status_variable.set("Searching .... Please Wait...")
-        self.update()
-        
-        # Perform search operation
-        print("Search")
+            # Calculate the zoom level based on the bounding box dimensions
+            # zoom_level = self.calculate_zoom_level(min_lat, max_lat, min_lon, max_lon)
 
-        self.planner = FlightPlanner(start_iata, destination_iata)
-        self.planner.create_graph()
-        self.results = self.planner.find_flights(start_iata, destination_iata)
+            # Set the center and zoom level of the map widget
+            self.map_widget.set_position(center_lat, center_lon)
+            self.map_widget.set_zoom(3)
+            self.update()
+            
+            # Update status to indicate searching
+            self.status_code.configure(text_color="red")
+            self.status_variable.set("Searching Routes, Please Wait...")
+            self.update()
+            
+            # Perform search operation
+            print("Search")
 
-        # For checking the "self.results" returned from line above
-        # Attributes in the "self.results" object
-        # dijkstra_time, dijkstra_time_unit, dijkstra_path, dijkstra_direct_flights, dijkstra_connecting_flights
-        # a_star_time, a_star_time_unit, a_star_path, a_star_direct_flights, a_star_connecting_flights
-        print(f"Dijkstra's algorithm time(empirical): {self.results.dijkstra_time} 'seconds'")
-        print(f"Dijkstra's algorithm path: {self.results.dijkstra_path}")
-        print(f"Dijkstra's algorithm total distance: {self.results.dijkstra_total_distance}")
-        print(f"A* algorithm total cost: {self.results.dijkstra_total_cost}")
-        print(f"Dijkstra's algorithm direct flights: {self.results.dijkstra_direct_flights}")
-        print(f"Dijkstra's algorithm connecting flights: {self.results.dijkstra_connecting_flights}")
-        
-        print(f"A* algorithm time(empirical): {self.results.a_star_time} 'seconds'")
-        print(f"A* algorithm path: {self.results.a_star_path}")
-        print(f"A* algorithm total distance: {self.results.a_star_total_distance}")
-        print(f"A* algorithm total cost: {self.results.a_star_total_cost}")
-        print(f"A* algorithm direct flights: {self.results.a_star_direct_flights}")
-        print(f"A* algorithm connecting flights: {self.results.a_star_connecting_flights}")
-        
-        # Do something with the input values
-        print("Start IATA:", start_iata)
-        print("Destination IATA:", destination_iata)
+            self.planner = FlightPlanner(start_iata, destination_iata)
+            self.planner.create_graph()
+            self.results = self.planner.find_flights(start_iata, destination_iata)
 
-        self.status_code.configure(text_color="green")
-        self.status_variable.set("Done!")
+            # For checking the "results" returned from line above
+            # Attributes in the "results" object
+            # dijkstra_time, dijkstra_time_unit, dijkstra_path, dijkstra_direct_flights, dijkstra_connecting_flights
+            # a_star_time, a_star_time_unit, a_star_path, a_star_direct_flights, a_star_connecting_flights
+            # print(f"Dijkstra's algorithm time(empirical): {self.results.dijkstra_time} 'seconds'")
+            # print(f"Dijkstra's algorithm path: {self.results.dijkstra_path}")
+            # print(f"Dijkstra's algorithm total distance: {self.results.dijkstra_total_distance}")
+            # print(f"A* algorithm total cost: {self.results.dijkstra_total_cost}")
+            # print(f"Dijkstra's algorithm direct flights: {self.results.dijkstra_direct_flights}")
+            # print(f"Dijkstra's algorithm connecting flights: {self.results.dijkstra_connecting_flights}")
+            
+            # print(f"A* algorithm time(empirical): {self.results.a_star_time} 'seconds'")
+            # print(f"A* algorithm path: {self.results.a_star_path}")
+            # print(f"A* algorithm total distance: {self.results.a_star_total_distance}")
+            # print(f"A* algorithm total cost: {self.results.a_star_total_cost}")
+            # print(f"A* algorithm direct flights: {self.results.a_star_direct_flights}")
+            # print(f"A* algorithm connecting flights: {self.results.a_star_connecting_flights}")
+            
+            # Do something with the input values
+            print("Start IATA:", start_iata)
+            print("Destination IATA:", destination_iata)
+            
+            # Set markers and paths for the Dijkstra path
+            
+            path_markers = self.setMarkersAndPaths(self.results.dijkstra_path)
 
+            self.status_code.configure(text_color="green")
+            self.status_variable.set("Search Completed!")
+            self.update()
+            
+        except Exception as e:
+            # Handle the error
+            print("An error occurred:", e)
+            self.status_code.configure(text_color="red")
+            self.status_variable.set("An error occurred during the search.")
+            self.show_error_message(str(e))
+
+    def setMarkersAndPaths(self, path):
+        # Store all markers created for the path
+        path_markers = []
+
+        # Display the Dijkstra algorithm path and set markers
+        for index, segment in enumerate(path):
+            location1, location2, distance = segment
+            
+            searchLoc1 = location1 + " Airport"
+            searchLoc2 = location2 + " Airport"
+
+            # Use geopy to get the coordinates of the location based on the IATA code
+            geolocator = Nominatim(user_agent="flightRouteMeasurements")
+            
+            try:
+                location1_coordinates = geolocator.geocode(searchLoc1)
+                location2_coordinates = geolocator.geocode(searchLoc2)
+            except GeocoderTimedOut:
+                self.show_error_message(f"Geocoding service timed out while fetching coordinates for {location1} or {location2}.")
+                return
+            
+            if location1_coordinates and location2_coordinates:
+                try:
+                    # Extract latitude and longitude
+                    location1_lat, location1_lon = location1_coordinates.latitude, location1_coordinates.longitude
+                    location2_lat, location2_lon = location2_coordinates.latitude, location2_coordinates.longitude
+
+                    # Set markers on the map widget
+                    marker1 = self.map_widget.set_marker(location1_lat, location1_lon)
+                    marker1.set_text(location1)
+                    path_markers.append(marker1)
+
+                    marker2 = self.map_widget.set_marker(location2_lat, location2_lon)
+                    marker2.set_text(location2)
+                    path_markers.append(marker2)
+
+                    # Create a path between the markers
+                    path = self.map_widget.set_path([(location1_lat, location1_lon), (location2_lat, location2_lon)], color="red")
+                    path_markers.append(path)
+                except Exception as e:
+                    self.show_error_message(f"An error occurred while setting markers or path: {str(e)}")
+                    return
+
+        # Return the list of markers and paths
+        return path_markers
+    
+    def show_error_message(self, message):
+        # Create a new top-level window for the error message
+        error_window = customtkinter.CTkToplevel(self)
+        error_window.title("Error")
+        error_window.geometry("300x200")
         
+        error_window.attributes("-topmost", True)
+
+        # Create a scrollable frame inside the error window
+        scrollable_frame = customtkinter.CTkScrollableFrame(error_window)
+        scrollable_frame.pack(fill="both", expand=True)
+
+        # Create a label to display the error message inside the scrollable frame
+        error_label = customtkinter.CTkLabel(scrollable_frame, text=message, font=("Helvetica", 12), text_color="red", wraplength=280, justify="center")
+        error_label.pack(pady=20)
+                
     # need to be changed
     def set_map_focus_event(self):
         print("Set Map Focus")
