@@ -13,7 +13,7 @@ customtkinter.set_default_color_theme("blue")
 
 class App(customtkinter.CTk):
 
-    APP_NAME = "TkinterMapView with CustomTkinter"
+    APP_NAME = "Flight Map Routing System"
     WIDTH = 800
     HEIGHT = 500
 
