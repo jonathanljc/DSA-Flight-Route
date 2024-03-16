@@ -41,7 +41,13 @@ class FlightPlanner:
         results.dijkstra_path = dijkstra_result[1] #store the path found by the algo
         results.dijkstra_total_distance = dijkstra_result[0]  # Store Dijkstra's total cost
         results.dijkstra_total_cost=len(results.dijkstra_path)# Read the number of paths
-        results.dijkstra_direct_flights, results.dijkstra_connecting_flights = self.flight_graph.findFlights(self.route_data, results.dijkstra_path)
+
+        pathForFlights = []
+        for x in range(len(dijkstra_result[1])):
+            pathForFlights.append(dijkstra_result[1][x][0])
+            if x == (len(dijkstra_result[1])-1):
+                pathForFlights.append(dijkstra_result[1][x][1])
+        results.dijkstra_direct_flights, results.dijkstra_connecting_flights = self.flight_graph.findFlights(self.route_data, pathForFlights)
         
         
         start_time = time.time() #emperical reading start
@@ -51,7 +57,13 @@ class FlightPlanner:
         results.a_star_path = a_star_result[1] #store the path found by the algo
         results.a_star_total_distance = a_star_result[0]  # Store A* total cost
         results.a_star_total_cost=len(results.a_star_path) # Read the number of paths
-        results.a_star_direct_flights, results.a_star_connecting_flights = self.flight_graph.findFlights(self.route_data, results.a_star_path)
+
+        pathForFlights2 = []
+        for x in range(len(a_star_result[1])):
+            pathForFlights2.append(a_star_result[1][x][0])
+            if x == (len(a_star_result[1])-1):
+                pathForFlights2.append(a_star_result[1][x][1])
+        results.a_star_direct_flights, results.a_star_connecting_flights = self.flight_graph.findFlights(self.route_data, pathForFlights2)
         
 
         return results
