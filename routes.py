@@ -111,6 +111,11 @@ class FlightGraph:
             # Loop through all departing routes from the current airport
             for route in departing_routes:
                 if route["destination"] in shortest_path:
+                    #     # Calculate the cost of the flight
+                    #     cost = self.graph[route["source"]][route["destination"]]
+                    #     # Add the cost to the route dictionary
+                    #     route_with_cost = {**route, 'cost': cost}
+
                     if route["destination"] == shortest_path[-1] and route["source"] == shortest_path[0]:
                         direct_flights.append(route)
                     else:
