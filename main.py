@@ -319,7 +319,7 @@ class App(customtkinter.CTk):
             print(f"Dijkstra's algorithm time(empirical): {self.results.dijkstra_time} 'seconds'")
             print(f"Dijkstra's algorithm path: {self.results.dijkstra_path}")
             print(f"Dijkstra's algorithm total distance: {self.results.dijkstra_total_distance}")
-            print(f"A* algorithm total cost: {self.results.dijkstra_total_cost}")
+            print(f"Dijkstra's algorithm total cost: {self.results.dijkstra_total_cost}")
             # print(f"Dijkstra's algorithm direct flights: {self.results.dijkstra_direct_flights}")
             # print(f"Dijkstra's algorithm connecting flights: {self.results.dijkstra_connecting_flights}")
             print(f"Dijkstra's algorithm all paths: {self.results.dijkstra_all_paths}")
