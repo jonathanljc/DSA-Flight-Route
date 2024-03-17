@@ -43,6 +43,16 @@ class resultsObj(object):
         self.bellman_ford_direct_flights = None
         self.bellman_ford_connecting_flights = None
 
+        self.dfs_time = None
+        self.dfs_path = None
+        self.dfs_path_easy = []
+        self.dfs_total_distance = None
+        self.dfs_total_cost = None
+        self.dfs_total_cost_path = None
+        self.dfs_all_paths = None
+        self.dfs_all_explored_paths = None
+        self.dfs_direct_flights = None
+        self.dfs_connecting_flights = None
 class FlightPlanner:
     def __init__(self, source, destination, *args, **kwargs):
         self.data_filter = DataFilter()
@@ -112,5 +122,23 @@ class FlightPlanner:
                 results.bellman_ford_path_easy.append(bellman_ford_result[1][x][1])
         results.bellman_ford_direct_flights, results.bellman_ford_connecting_flights = self.flight_graph.findFlights(self.route_data, results.bellman_ford_path_easy)
 
+        
+        # Add this code to the find_flights method of the FlightPlanner class
+        start_time = time.time()  # empirical reading start
+        dfs_result = self.flight_graph.dfs(source, destination)
+        end_time = time.time()  # end
+        results.dfs_time = end_time - start_time
+        results.dfs_path = dfs_result[1]  # store the path found by the algo
+        results.dfs_total_distance = dfs_result[0]  # Store DFS total cost
+        results.dfs_total_cost=len(results.dfs_path) # Read the number of paths
+        results.dfs_all_paths = dfs_result[2]  # Store all paths from DFS
+        results.dfs_all_explored_paths = dfs_result[3]  # Store all explored paths from DFS
+        results.dfs_total_cost_path=len(results.dfs_all_explored_paths)
 
+        for x in range(len(dfs_result[1])):
+            results.dfs_path_easy.append(dfs_result[1][x][0])
+            if x == (len(dfs_result[1])-1):
+                results.dfs_path_easy.append(dfs_result[1][x][1])
+        results.dfs_direct_flights, results.dfs_connecting_flights = self.flight_graph.findFlights(self.route_data, results.dfs_path_easy)
+        
         return results

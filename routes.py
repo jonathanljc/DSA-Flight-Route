@@ -28,6 +28,26 @@ class FlightGraph:
             graph[airport["iata"]] = {iata_codes[index]: self.data_filter.calculate_distance(airport["latitude"], airport["longitude"], self.airport_data[iata_codes[index]]["latitude"], self.airport_data[iata_codes[index]]["longitude"]) for index in indices[1:]}
         return graph
 
+    def dfs(self, start, goal):
+        stack = [(start, [start], 0)]  # Add a third element to the tuple for the total distance
+        visited = set()
+        all_paths = {start: [[start]]}  # Add a dictionary to keep track of all paths
+        all_explored_paths = []  # List to store all explored paths
+
+        while stack:
+            (vertex, path, distance) = stack.pop()  # Update here
+            if vertex not in visited:
+                if vertex == goal:
+                    costed_path = [(path[i], path[i+1], self.graph[path[i]][path[i+1]]) for i in range(len(path)-1)]
+                    return distance, costed_path, all_paths[vertex], all_explored_paths  # Return the total distance, the costed path, all paths to the goal, and all explored paths
+                visited.add(vertex)
+                for neighbor in self.graph[vertex]:
+                    stack.append((neighbor, path + [neighbor], distance + self.graph[vertex][neighbor]))  # Add the distance from vertex to neighbor to the total distance
+                    all_paths[neighbor] = [path + [neighbor] for path in all_paths[vertex]]  # Update the paths for the neighbor
+                    all_explored_paths.extend(all_paths[neighbor])  # Add all new paths to all_explored_paths
+
+        return None  # If no path is found
+    
     # Calculate the shortest path from a starting vertex to a target vertex using Dijkstra's algorithm
     def calculate_shortest_path(self, starting_vertex, target_vertex=None):
         shortest_distances = {vertex: float('infinity') for vertex in self.graph}
@@ -36,6 +56,7 @@ class FlightGraph:
         heap = [(0, starting_vertex)]
         all_paths = {starting_vertex: [[starting_vertex]]}  # Add a dictionary to keep track of all paths
         all_explored_paths = []  # List to store all explored paths
+        
         
 
         while len(heap) > 0:
