@@ -57,7 +57,6 @@ class FlightGraph:
         all_paths = {starting_vertex: [[starting_vertex]]}  # Add a dictionary to keep track of all paths
         all_explored_paths = []  # List to store all explored paths
         
-        
 
         while len(heap) > 0:
             current_distance, current_vertex = heapq.heappop(heap)
