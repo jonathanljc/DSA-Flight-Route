@@ -138,7 +138,7 @@ class App(customtkinter.CTk):
         scrollable_frame.pack(fill="both", expand=True)
         
         # Create labels to display information
-        dijkstra_path_label = customtkinter.CTkLabel(scrollable_frame, text=f"Dijkstra Path: {' -> '.join(self.results.dijkstra_path_easy)}")
+        dijkstra_path_label = customtkinter.CTkLabel(scrollable_frame, text=f"Dijkstra Path: {' -> '.join(self.results.dijkstra_all_paths[0])}")
         dijkstra_path_label.pack()
 
         # Display the Dijkstra algorithm path
@@ -152,7 +152,7 @@ class App(customtkinter.CTk):
         total_distance_label.pack()
 
         # Create labels to display information for A* algorithm
-        a_star_path_label = customtkinter.CTkLabel(scrollable_frame, text=f"A* Path: {' -> '.join(self.results.a_star_path_easy)}")
+        a_star_path_label = customtkinter.CTkLabel(scrollable_frame, text=f"A* Path: {' -> '.join(self.results.a_star_all_paths[0])}")
         a_star_path_label.pack()
 
         # Display the A* algorithm path
@@ -164,6 +164,19 @@ class App(customtkinter.CTk):
         # Display total distance for A* algorithm
         total_distance_label = customtkinter.CTkLabel(scrollable_frame, text=f"Total Distance (A*): {self.results.a_star_total_distance:.2f} km")
         total_distance_label.pack()
+
+        # Display dijkstar direct and connecting flights
+        # (FOR DEBUGGING)
+        dijkstra_direct_flights_label = customtkinter.CTkLabel(scrollable_frame, text="Dijkstra Direct Flights:")
+        dijkstra_direct_flights_label.pack()
+        for flight in self.results.dijkstra_direct_flights:
+            flight_label = customtkinter.CTkLabel(scrollable_frame, text=f"Source: {flight['source']}, Destination: {flight['destination']}, Airline ID: {flight['airlineID']}, Price: {flight['price']}")
+            flight_label.pack()
+        dijkstra_connecting_flights_label = customtkinter.CTkLabel(scrollable_frame, text="Dijkstra Connecting Flights:")
+        dijkstra_connecting_flights_label.pack()
+        for flight in self.results.dijkstra_connecting_flights:
+            flight_label = customtkinter.CTkLabel(scrollable_frame, text=f"Source: {flight['source']}, Destination: {flight['destination']}, Airline ID: {flight['airlineID']}, Price: {flight['price']}")
+            flight_label.pack()
         
         # Add a button to close the additional window
         close_button = customtkinter.CTkButton(self.additional_window, text="Close", command=self.additional_window.destroy)
@@ -313,9 +326,6 @@ class App(customtkinter.CTk):
             self.results = self.planner.find_flights(start_iata, destination_iata)
 
             # For checking the "results" returned from line above
-            # Attributes in the "results" object
-            # dijkstra_time, dijkstra_time_unit, dijkstra_path, dijkstra_direct_flights, dijkstra_connecting_flights
-            # a_star_time, a_star_time_unit, a_star_path, a_star_direct_flights, a_star_connecting_flights
             print(f"Dijkstra's algorithm time(empirical): {self.results.dijkstra_time} 'seconds'")
             print(f"Dijkstra's algorithm path: {self.results.dijkstra_path}")
             print(f"Dijkstra's algorithm total distance: {self.results.dijkstra_total_distance}")
@@ -339,21 +349,21 @@ class App(customtkinter.CTk):
             print(f"Bellman-Ford algorithm path: {self.results.bellman_ford_path}")
             print(f"Bellman-Ford algorithm total distance: {self.results.bellman_ford_total_distance}")
             print(f"Bellman-Ford algorithm total cost: {self.results.bellman_ford_total_cost}")
-            #print(f"Bellman-Ford algorithm direct flights: {self.results.bellman_ford_direct_flights}")
-            #print(f"Bellman-Ford algorithm connecting flights: {self.results.bellman_ford_connecting_flights}")
+            # print(f"Bellman-Ford algorithm direct flights: {self.results.bellman_ford_direct_flights}")
+            # print(f"Bellman-Ford algorithm connecting flights: {self.results.bellman_ford_connecting_flights}")
             print(f"Bellman-Ford algorithm all paths: {self.results.bellman_ford_all_paths}")
             print(f"Bellman-Ford algorithm all explored paths: {self.results.bellman_ford_all_total_cost_path}")
             
             # print the results of the DFS algorithm
             print(f"DFS algorithm time(empirical): {self.results.dfs_time} 'seconds'")
-            #print(f"DFS algorithm path: {self.results.dfs_path}")
+            print(f"DFS algorithm path: {self.results.dfs_path}")
             print(f"DFS algorithm total distance: {self.results.dfs_total_distance}")
             print(f"DFS algorithm total cost: {self.results.dfs_total_cost}")
-            #print(f"DFS algorithm direct flights: {self.results.dfs_direct_flights}")
-            #print(f"DFS algorithm connecting flights: {self.results.dfs_connecting_flights}")
-            #print(f"DFS algorithm all paths: {self.results.dfs_all_paths}")
-            #print(f"DFS algorithm all explored paths: {self.results.dfs_all_explored_paths}")
-            print(f"DFS algorithm ALL explored paths: {self.results.dfs_total_cost_path}")
+            # print(f"DFS algorithm direct flights: {self.results.dfs_direct_flights}")
+            # print(f"DFS algorithm connecting flights: {self.results.dfs_connecting_flights}")
+            print(f"DFS algorithm all paths: {self.results.dfs_all_paths}")
+            print(f"DFS algorithm all explored paths: {self.results.dfs_all_explored_paths}")
+            print(f"DFS algorithm total cost path: {self.results.dfs_total_cost_path}")
            
             
           

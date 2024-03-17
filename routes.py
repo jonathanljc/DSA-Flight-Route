@@ -1,6 +1,7 @@
 import heapq
 from data import DataFilter
 from scipy.spatial import KDTree
+import random
 
 # Class to represent a flight graph
 class FlightGraph:
@@ -56,6 +57,7 @@ class FlightGraph:
         heap = [(0, starting_vertex)]
         all_paths = {starting_vertex: [[starting_vertex]]}  # Add a dictionary to keep track of all paths
         all_explored_paths = []  # List to store all explored paths
+        
         
 
         while len(heap) > 0:
@@ -168,7 +170,6 @@ class FlightGraph:
         # Loop through all airports in the shortest path
         for airport in airportsList:
             departing_routes = [route for route in route_data if route["source"] == airport]
-            
 
             # Loop through all departing routes from the current airport
             for route in departing_routes:
@@ -196,4 +197,21 @@ class FlightGraph:
             #print("No connecting flights found.")
             
 
+        return direct_flights, connecting_flights
+    
+    def calculatePrice(self, direct_flights, connecting_flights, algo_path, total_dist):
+        for flight in direct_flights:
+            flight["price"] = round((total_dist * random.uniform(0.09, 0.11)), 2)
+        
+        for flight in connecting_flights:
+            distTemp = 0.00000
+            for path in algo_path:
+                if flight["source"] == path[0]:
+                    distTemp += path[2]
+                if flight["destination"] == path[1]:
+                    distTemp += path[2]
+                    flight["price"] = round((distTemp * random.uniform(0.06, 0.09)), 2)
+            if flight["price"] == None:
+                flight["price"] = "NA"
+        
         return direct_flights, connecting_flights

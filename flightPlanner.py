@@ -8,7 +8,6 @@ class resultsObj(object):
         self.dijkstra_time = None
         self.dijkstra_time_unit = None
         self.dijkstra_path = None
-        self.dijkstra_path_easy = []
         self.dijkstra_total_distance = None 
         self.dijkstra_total_cost= None 
         self.dijkstra_total_cost_path= None
@@ -21,7 +20,6 @@ class resultsObj(object):
         self.a_star_time = None
         self.a_star_time_unit = None
         self.a_star_path = None
-        self.a_star_path_easy = []
         self.a_star_total_distance = None
         self.a_star_total_cost= None
         self.a_star_total_cost_path= None
@@ -34,7 +32,6 @@ class resultsObj(object):
         self.bellman_ford_time = None
         self.bellman_ford_time_unit= None
         self.bellman_ford_path = None
-        self.bellman_ford_path_easy = []
         self.bellman_ford_total_distance = None
         self.bellman_ford_total_cost = None
         self.bellman_ford_all_total_cost_path= None
@@ -45,7 +42,6 @@ class resultsObj(object):
 
         self.dfs_time = None
         self.dfs_path = None
-        self.dfs_path_easy = []
         self.dfs_total_distance = None
         self.dfs_total_cost = None
         self.dfs_total_cost_path = None
@@ -77,13 +73,8 @@ class FlightPlanner:
         results.dijkstra_all_paths= dijkstra_result[2]
         results.dijkstra_all_explored_paths = dijkstra_result[3]  # Store all explored paths from Dijkstra's
         results.dijkstra_total_cost_path=len(results.dijkstra_all_explored_paths)
-
-        for x in range(len(dijkstra_result[1])):
-            results.dijkstra_path_easy.append(dijkstra_result[1][x][0])
-            if x == (len(dijkstra_result[1])-1):
-                results.dijkstra_path_easy.append(dijkstra_result[1][x][1])
-        results.dijkstra_direct_flights, results.dijkstra_connecting_flights = self.flight_graph.findFlights(self.route_data, results.dijkstra_path_easy)
-        
+        results.dijkstra_direct_flights, results.dijkstra_connecting_flights = self.flight_graph.findFlights(self.route_data, results.dijkstra_all_paths[0])
+        results.dijkstra_direct_flights, results.dijkstra_connecting_flights = self.flight_graph.calculatePrice(results.dijkstra_direct_flights, results.dijkstra_connecting_flights, results.dijkstra_path, results.dijkstra_total_distance)
         
         start_time = time.time() #emperical reading start
         a_star_result = self.flight_graph.a_star(source, destination)
@@ -95,14 +86,8 @@ class FlightPlanner:
         results.a_star_all_paths = a_star_result[2]  # Store all paths from A*
         results.a_star_all_explored_paths = a_star_result[3]  # Store all explored paths from A*
         results.a_star_total_cost_path=len(results.a_star_all_explored_paths)
-        
-        
-
-        for x in range(len(a_star_result[1])):
-            results.a_star_path_easy.append(a_star_result[1][x][0])
-            if x == (len(a_star_result[1])-1):
-                results.a_star_path_easy.append(a_star_result[1][x][1])
-        results.a_star_direct_flights, results.a_star_connecting_flights = self.flight_graph.findFlights(self.route_data, results.a_star_path_easy)
+        results.a_star_direct_flights, results.a_star_connecting_flights = self.flight_graph.findFlights(self.route_data, results.a_star_all_paths[0])
+        results.a_star_direct_flights, results.a_star_connecting_flights = self.flight_graph.calculatePrice(results.a_star_direct_flights, results.a_star_connecting_flights, results.a_star_path, results.a_star_total_distance)
         
         # Bellman Ford
         start_time = time.time()  # empirical reading start
@@ -115,12 +100,8 @@ class FlightPlanner:
         results.bellman_ford_all_paths = bellman_ford_result[2]  # Store all paths from Bellman Ford
         results.bellman_ford_all_explored_paths = bellman_ford_result[3]  # Store all explored paths from Bellman Ford
         results.bellman_ford_all_total_cost_path=len(results.bellman_ford_all_explored_paths)
-        
-        for x in range(len(bellman_ford_result[1])):
-            results.bellman_ford_path_easy.append(bellman_ford_result[1][x][0])
-            if x == (len(bellman_ford_result[1]) - 1):
-                results.bellman_ford_path_easy.append(bellman_ford_result[1][x][1])
-        results.bellman_ford_direct_flights, results.bellman_ford_connecting_flights = self.flight_graph.findFlights(self.route_data, results.bellman_ford_path_easy)
+        results.bellman_ford_direct_flights, results.bellman_ford_connecting_flights = self.flight_graph.findFlights(self.route_data, results.bellman_ford_all_paths[0])
+        results.bellman_ford_direct_flights, results.bellman_ford_connecting_flights = self.flight_graph.calculatePrice(results.bellman_ford_direct_flights, results.bellman_ford_connecting_flights, results.bellman_ford_path, results.bellman_ford_total_distance)
 
         
         # Add this code to the find_flights method of the FlightPlanner class
@@ -134,11 +115,7 @@ class FlightPlanner:
         results.dfs_all_paths = dfs_result[2]  # Store all paths from DFS
         results.dfs_all_explored_paths = dfs_result[3]  # Store all explored paths from DFS
         results.dfs_total_cost_path=len(results.dfs_all_explored_paths)
-
-        for x in range(len(dfs_result[1])):
-            results.dfs_path_easy.append(dfs_result[1][x][0])
-            if x == (len(dfs_result[1])-1):
-                results.dfs_path_easy.append(dfs_result[1][x][1])
-        results.dfs_direct_flights, results.dfs_connecting_flights = self.flight_graph.findFlights(self.route_data, results.dfs_path_easy)
+        #results.dfs_direct_flights, results.dfs_connecting_flights = self.flight_graph.findFlights(self.route_data, results.dfs_all_paths[0])
+        #results.dfs_direct_flights, results.dfs_connecting_flights = self.flight_graph.calculatePrice(results.dfs_direct_flights, results.dfs_connecting_flights, results.dfs_path, results.dfs_total_distance)
         
         return results
