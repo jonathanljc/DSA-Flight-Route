@@ -202,6 +202,7 @@ class FlightGraph:
     def calculatePrice(self, direct_flights, connecting_flights, algo_path, total_dist):
         for flight in direct_flights:
             flight["price"] = round((total_dist * random.uniform(0.09, 0.11)), 2)
+            flight["distance"] = round(total_dist, 2)
         
         for flight in connecting_flights:
             distTemp = 0.00000
@@ -211,7 +212,9 @@ class FlightGraph:
                 if flight["destination"] == path[1]:
                     distTemp += path[2]
                     flight["price"] = round((distTemp * random.uniform(0.06, 0.09)), 2)
+                    flight["distance"] = round(distTemp, 2)
             if flight["price"] == None:
                 flight["price"] = "NA"
+                flight["distance"] = "NA"
         
         return direct_flights, connecting_flights

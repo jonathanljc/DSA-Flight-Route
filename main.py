@@ -170,12 +170,12 @@ class App(customtkinter.CTk):
         dijkstra_direct_flights_label = customtkinter.CTkLabel(scrollable_frame, text="Dijkstra Direct Flights:")
         dijkstra_direct_flights_label.pack()
         for flight in self.results.dijkstra_direct_flights:
-            flight_label = customtkinter.CTkLabel(scrollable_frame, text=f"Source: {flight['source']}, Destination: {flight['destination']}, Airline ID: {flight['airlineID']}, Price: {flight['price']}")
+            flight_label = customtkinter.CTkLabel(scrollable_frame, text=f"Source: {flight['source']}, Destination: {flight['destination']}, Airline ID: {flight['airlineID']}, Price: {flight['price']}, Distance: {flight['distance']}")
             flight_label.pack()
         dijkstra_connecting_flights_label = customtkinter.CTkLabel(scrollable_frame, text="Dijkstra Connecting Flights:")
         dijkstra_connecting_flights_label.pack()
         for flight in self.results.dijkstra_connecting_flights:
-            flight_label = customtkinter.CTkLabel(scrollable_frame, text=f"Source: {flight['source']}, Destination: {flight['destination']}, Airline ID: {flight['airlineID']}, Price: {flight['price']}")
+            flight_label = customtkinter.CTkLabel(scrollable_frame, text=f"Source: {flight['source']}, Destination: {flight['destination']}, Airline ID: {flight['airlineID']}, Price: {flight['price']}, Distance: {flight['distance']}")
             flight_label.pack()
         
         # Add a button to close the additional window
