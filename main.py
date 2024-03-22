@@ -8,6 +8,8 @@ from flightPlanner import FlightPlanner
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut
 
+from tkinter import ttk # For tabs
+
 customtkinter.set_appearance_mode("System")
 customtkinter.set_default_color_theme("blue")
 
@@ -132,10 +134,49 @@ class App(customtkinter.CTk):
         # Set the additional window to be always on top
         self.additional_window.attributes("-topmost", True)
 
+        style = ttk.Style()
+
+        # Check the theme used by tkinter
+        print(style.theme_use())
+
+        # Set a theme that supports changing the tab colors
+        style.theme_use('default')
+
+        # Configure the Tab style
+        style.configure('TNotebook', background='#2b2b2b')
+        style.configure('TNotebook.Tab', background='black', foreground='white')
+        style.map('TNotebook.Tab', background=[('selected', 'black')], foreground=[('selected', 'white')])
+
+        # Create notebook
+        notebook = ttk.Notebook(self.additional_window, style='TNotebook')
+        notebook.grid(row=0, column=0, sticky="nsew")  # Use grid instead of pack
+
+        # Configure the grid to expand with the window
+        self.additional_window.grid_rowconfigure(0, weight=1)
+        self.additional_window.grid_columnconfigure(0, weight=1)
+
+        # Create frames for each tab
+        tab1 = ttk.Frame(notebook)
+        tab2 = ttk.Frame(notebook)
+        tab3 = ttk.Frame(notebook)
+
+        # Add the frames to the notebook
+        notebook.add(tab1, text='Dijkstra Algorithm')
+        notebook.add(tab2, text='A* Algorithm')
+        notebook.add(tab3, text='Bellman-Ford Algorithm')
+
         
         # Create a scrollable frame with a black background
-        scrollable_frame = customtkinter.CTkScrollableFrame(self.additional_window, bg_color="black", label_text="Search Results")
+        scrollable_frame = customtkinter.CTkScrollableFrame(tab1, bg_color="black", label_text="Search Results")
         scrollable_frame.pack(fill="both", expand=True)
+
+        # Second scrollable frame
+        scrollable_frame2 = customtkinter.CTkScrollableFrame(tab2, bg_color="black", label_text="Search Results")
+        scrollable_frame2.pack(fill="both", expand=True)
+
+        # Third scrollable frame
+        scrollable_frame3 = customtkinter.CTkScrollableFrame(tab3, bg_color="black", label_text="Search Results")
+        scrollable_frame3.pack(fill="both", expand=True)
         
         # Create labels to display information
         dijkstra_path_label = customtkinter.CTkLabel(scrollable_frame, text=f"Dijkstra Path: {' -> '.join(self.results.dijkstra_all_paths[0])}")
@@ -152,18 +193,34 @@ class App(customtkinter.CTk):
         total_distance_label.pack()
 
         # Create labels to display information for A* algorithm
-        a_star_path_label = customtkinter.CTkLabel(scrollable_frame, text=f"A* Path: {' -> '.join(self.results.a_star_all_paths[0])}")
+        a_star_path_label = customtkinter.CTkLabel(scrollable_frame2, text=f"A* Path: {' -> '.join(self.results.a_star_all_paths[0])}")
         a_star_path_label.pack()
 
         # Display the A* algorithm path
         for index, segment in enumerate(self.results.a_star_path):
             location1, location2, distance = segment
-            path_label = customtkinter.CTkLabel(scrollable_frame, text=f"{index+1}. {location1} -> {location2} (Distance: {distance:.2f} km)")
+            path_label = customtkinter.CTkLabel(scrollable_frame2, text=f"{index+1}. {location1} -> {location2} (Distance: {distance:.2f} km)")
             path_label.pack()
 
         # Display total distance for A* algorithm
-        total_distance_label = customtkinter.CTkLabel(scrollable_frame, text=f"Total Distance (A*): {self.results.a_star_total_distance:.2f} km")
+        total_distance_label = customtkinter.CTkLabel(scrollable_frame2, text=f"Total Distance (A*): {self.results.a_star_total_distance:.2f} km")
         total_distance_label.pack()
+
+
+        # Create labels to display information for Bellman-Ford algorithm
+        bellman_ford_path_label = customtkinter.CTkLabel(scrollable_frame3, text=f"Bellman Ford Path: {' -> '.join(self.results.bellman_ford_all_paths[0])}")
+        bellman_ford_path_label.pack()
+
+        # Display the Bellman Ford algorithm path
+        for index, segment in enumerate(self.results.bellman_ford_path):
+            location1, location2, distance = segment
+            path_label = customtkinter.CTkLabel(scrollable_frame3, text=f"{index+1}. {location1} -> {location2} (Distance: {distance:.2f} km)")
+            path_label.pack()
+
+        # Display total distance for Bellman Ford algorithm
+        total_distance_label = customtkinter.CTkLabel(scrollable_frame3, text=f"Total Distance (Bellman Ford): {self.results.bellman_ford_total_distance:.2f} km")
+        total_distance_label.pack()
+
 
         # Display dijkstar direct and connecting flights
         # (FOR DEBUGGING)
@@ -355,15 +412,15 @@ class App(customtkinter.CTk):
             print(f"Bellman-Ford algorithm all explored paths: {self.results.bellman_ford_all_total_cost_path}")
             
             # print the results of the DFS algorithm
-            print(f"DFS algorithm time(empirical): {self.results.dfs_time} 'seconds'")
-            print(f"DFS algorithm path: {self.results.dfs_path}")
-            print(f"DFS algorithm total distance: {self.results.dfs_total_distance}")
-            print(f"DFS algorithm total cost: {self.results.dfs_total_cost}")
+        #    print(f"DFS algorithm time(empirical): {self.results.dfs_time} 'seconds'")
+        #    print(f"DFS algorithm path: {self.results.dfs_path}")
+        #    print(f"DFS algorithm total distance: {self.results.dfs_total_distance}")
+        #    print(f"DFS algorithm total cost: {self.results.dfs_total_cost}")
             # print(f"DFS algorithm direct flights: {self.results.dfs_direct_flights}")
             # print(f"DFS algorithm connecting flights: {self.results.dfs_connecting_flights}")
-            print(f"DFS algorithm all paths: {self.results.dfs_all_paths}")
-            print(f"DFS algorithm all explored paths: {self.results.dfs_all_explored_paths}")
-            print(f"DFS algorithm total cost path: {self.results.dfs_total_cost_path}")
+        #    print(f"DFS algorithm all paths: {self.results.dfs_all_paths}")
+          #  print(f"DFS algorithm all explored paths: {self.results.dfs_all_explored_paths}")
+        #    print(f"DFS algorithm total cost path: {self.results.dfs_total_cost_path}")
            
             
           
