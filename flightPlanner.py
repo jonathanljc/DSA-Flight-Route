@@ -54,7 +54,6 @@ class FlightPlanner:
         self.data_filter = DataFilter()
         self.airport_data = self.data_filter.airport_data
         self.route_data = self.data_filter.route_data
-        self.airline_data = self.data_filter.airline_data
         self.flight_graph = FlightGraph(self.airport_data)
 
     def create_graph(self):

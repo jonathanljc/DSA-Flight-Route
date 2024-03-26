@@ -60,6 +60,13 @@ class DataFilter:
                     }
 
                     routes.append(each_route)
+                    
+        airlineData = self.filter_airline()
+        for route in routes:
+            for airline in airlineData:
+                if route['airlineID'] == airline['airlineID']:
+                    route['airlineName'] = airline['airlineName']
+                    break
 
         return routes
 
