@@ -221,6 +221,35 @@ class App(customtkinter.CTk):
         total_distance_label = customtkinter.CTkLabel(scrollable_frame3, text=f"Total Distance (Bellman Ford): {self.results.bellman_ford_total_distance:.2f} km")
         total_distance_label.pack()
 
+        # Display the cheapest path for Dijkstra's algorithm
+        cheapest_path_label = customtkinter.CTkLabel(scrollable_frame, text=f"Cheapest Path: ")
+        cheapest_path_label.pack()
+        
+        # Create a dictionary to store the cheapest flight for each unique combination of source and destination
+        cheapest_flights = {}
+        print(self.results.dijkstra_connecting_flights)
+        # Iterate through each flight in self.results.dijkstra_connecting_flights
+        for flight in self.results.dijkstra_connecting_flights:
+            source = flight['source']
+            destination = flight['destination']
+            price = flight['price']
+            
+            # Check if this combination of source and destination already exists in the dictionary
+            if (source, destination) not in cheapest_flights:
+                # If it doesn't exist, add it to the dictionary with the current flight as the cheapest option
+                cheapest_flights[(source, destination)] = flight
+            else:
+                # If it does exist, compare the price of the current flight with the cheapest price stored in the dictionary
+                current_cheapest_price = cheapest_flights[(source, destination)]['price']
+                if price < current_cheapest_price:
+                    # If the current flight is cheaper, update the dictionary with this flight as the new cheapest option
+                    cheapest_flights[(source, destination)] = flight
+
+        # Display the cheapest flights
+        for flight in cheapest_flights.values():
+            flight_label = customtkinter.CTkLabel(scrollable_frame, text=f"Source: {flight['source']}, Destination: {flight['destination']}, Airline ID: {flight['airlineID']}, Price: {flight['price']}, Distance: {flight['distance']}")
+            flight_label.pack()
+                
 
         # Display dijkstar direct and connecting flights
         # (FOR DEBUGGING)
