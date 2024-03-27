@@ -191,10 +191,12 @@ class FlightGraph:
 
         for route in connecting_flights:
             if route['destination'] == shortest_path[-1]:
-                connecting_flights.append("valid")
+                validTravelFlag = 1
                 break
+            else:
+                validTravelFlag = 0
 
-        return direct_flights, connecting_flights
+        return direct_flights, connecting_flights, validTravelFlag
     
     def calculatePrice(self, direct_flights, connecting_flights, algo_path, total_dist):
         for flight in direct_flights:

@@ -221,9 +221,28 @@ class App(customtkinter.CTk):
         total_distance_label = customtkinter.CTkLabel(scrollable_frame3, text=f"Total Distance (Bellman Ford): {self.results.bellman_ford_total_distance:.2f} km")
         total_distance_label.pack()
 
-        if self.results.dijkstra_connecting_flights[-1] != "valid":
-            dijkstra_connecting_warning_label = customtkinter.CTkLabel(scrollable_frame, text="WARNING: UNABLE TO REACH DESTINATION BASED ON PATH")
+        # Show Warning if Direct and Connecting Flights is unable to reach destination based on Calculated Path
+        if self.results.dijkstra_valid_travel == 0:
+            dijkstra_connecting_warning_label = customtkinter.CTkLabel(
+                scrollable_frame, 
+                text="WARNING: UNABLE TO REACH DESTINATION BASED ON PATH\n(No valid commercial flights routes)",
+                fg_color="red")
             dijkstra_connecting_warning_label.pack()
+
+        if self.results.a_star_valid_travel == 0:
+            a_star_connecting_warning_label = customtkinter.CTkLabel(
+                scrollable_frame2, 
+                text="WARNING: UNABLE TO REACH DESTINATION BASED ON PATH\n(No valid commercial flights routes)",
+                fg_color="red")
+            a_star_connecting_warning_label.pack()
+        
+        if self.results.bellman_ford_valid_travel == 0:
+            bellman_ford_connecting_warning_label = customtkinter.CTkLabel(
+                scrollable_frame3, 
+                text="WARNING: UNABLE TO REACH DESTINATION BASED ON PATH\n(No valid commercial flights routes)",
+                fg_color="red")
+            bellman_ford_connecting_warning_label.pack()
+
         
         # Display the cheapest path for Dijkstra's algorithm
         cheapest_path_label = customtkinter.CTkLabel(scrollable_frame, text=f"Cheapest Path: ")
@@ -231,7 +250,6 @@ class App(customtkinter.CTk):
         
         # Create a dictionary to store the cheapest flight for each unique combination of source and destination
         cheapest_flights = {}
-        print(self.results.dijkstra_connecting_flights)
         # Iterate through each flight in self.results.dijkstra_connecting_flights
         for flight in self.results.dijkstra_connecting_flights:
             source = flight['source']
@@ -288,6 +306,65 @@ class App(customtkinter.CTk):
                 )
             flight_button.pack(pady=5)
             
+        # Display a_star direct and connecting flights
+        a_star_direct_flights_label = customtkinter.CTkLabel(scrollable_frame2, text="Direct Flights:")
+        a_star_direct_flights_label.pack()
+        if len(self.results.a_star_direct_flights) == 0:
+            flight_button = customtkinter.CTkButton(
+                scrollable_frame2, 
+                text="No direct flights available", 
+                command=None,
+                )
+            flight_button.pack(pady=5)
+        else:  
+            for flight in self.results.a_star_direct_flights:
+                flight_button = customtkinter.CTkButton(
+                    scrollable_frame2, 
+                    text=f"{flight['source']} ---------> {flight['destination']}\t{flight['airlineName']}\t\t${flight['price']}", 
+                    command=None,
+                    )
+                flight_button.pack(pady=5)
+            
+        a_star_connecting_flights_label = customtkinter.CTkLabel(scrollable_frame2, text="Connecting Flights:")
+        a_star_connecting_flights_label.pack()
+
+        for flight in self.results.a_star_connecting_flights:
+            flight_button = customtkinter.CTkButton(
+                scrollable_frame2, 
+                text=f"{flight['source']} ---------> {flight['destination']}\t{flight['airlineName']}\t\t${flight['price']}", 
+                command=None,
+                )
+            flight_button.pack(pady=5)
+
+        # Display bellman_ford direct and connecting flights
+        bellman_ford_direct_flights_label = customtkinter.CTkLabel(scrollable_frame3, text="Direct Flights:")
+        bellman_ford_direct_flights_label.pack()
+        if len(self.results.bellman_ford_direct_flights) == 0:
+            flight_button = customtkinter.CTkButton(
+                scrollable_frame3, 
+                text="No direct flights available", 
+                command=None,
+                )
+            flight_button.pack(pady=5)
+        else:  
+            for flight in self.results.bellman_ford_direct_flights:
+                flight_button = customtkinter.CTkButton(
+                    scrollable_frame3, 
+                    text=f"{flight['source']} ---------> {flight['destination']}\t{flight['airlineName']}\t\t${flight['price']}", 
+                    command=None,
+                    )
+                flight_button.pack(pady=5)
+            
+        bellman_ford_connecting_flights_label = customtkinter.CTkLabel(scrollable_frame3, text="Connecting Flights:")
+        bellman_ford_connecting_flights_label.pack()
+
+        for flight in self.results.bellman_ford_connecting_flights:
+            flight_button = customtkinter.CTkButton(
+                scrollable_frame3, 
+                text=f"{flight['source']} ---------> {flight['destination']}\t{flight['airlineName']}\t\t${flight['price']}", 
+                command=None,
+                )
+            flight_button.pack(pady=5)
         
         # Add a button to close the additional window
         close_button = customtkinter.CTkButton(self.additional_window, text="Close", command=self.additional_window.destroy)
