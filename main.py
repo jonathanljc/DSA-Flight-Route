@@ -12,7 +12,13 @@ from geopy.exc import GeocoderTimedOut
 from tkinter import ttk # For tabs
 import locale
 
-current_locale, encoding = locale.getdefaultlocale()
+# Set the locale to the user's default setting
+locale.setlocale(locale.LC_ALL, '')
+
+# Get the current locale and encoding
+current_locale = locale.getlocale()
+encoding = locale.getencoding()
+
 locale_path = 'locales'
 language = gettext.translation('base', localedir=locale_path, languages=['en'], fallback=True)
 language.install()
@@ -197,7 +203,7 @@ class App(customtkinter.CTk):
         self.additional_button.configure(text=_("Search Results"))
         self.language_label.configure(text=_("Language:"))
 
-        self.update_option_menu(self.map_option_menu, self.map_var, [_("OpenStreetMap"), _("Google normal"), _("Google satellite")])
+        self.update_option_menu(self.map_option_menu, self.map_var, ["OpenStreetMap", "Google normal", "Google satellite"])
         self.update_option_menu(self.appearance_mode_optionemenu, self.appearance_mode_var, [_("Light"), _("Dark"), _("System")])
         
         # Update the variable text if used in labels or elsewhere
@@ -207,26 +213,26 @@ class App(customtkinter.CTk):
         self.update_idletasks()
 
 
-    def update_option_menu(self, option_menu, var, new_values):
-        # Get the current selection to restore it later
+    def update_option_menu(self, option_menu_attr_name, var, new_values):
+        # Define current_value at the beginning of the method
         current_value = var.get()
 
-        # Update the values in the OptionMenu
-        menu = option_menu['menu']
-        menu.delete(0, "end")
-        for value in new_values:
-            menu.add_command(label=value, command=lambda v=value: var.set(v))
+        # Check and destroy the existing CTkOptionMenu widget
+        if hasattr(self, option_menu_attr_name):
+            getattr(self, option_menu_attr_name).destroy()
 
-        # Try to restore the previous selection if it exists in the new values
-        if current_value in new_values:
-            var.set(current_value)
-        else:
-            # If the current value is not in the new values, set it to the first entry
-            var.set(new_values[0])
+        # Create a new CTkOptionMenu with the updated options
+        new_option_menu = customtkinter.CTkOptionMenu(self.frame_left,
+                                                    variable=var,
+                                                    values=new_values,
+                                                    command=self.change_map)
+        setattr(self, option_menu_attr_name, new_option_menu)
 
-        # Update the OptionMenu display to match the selected value
-        option_menu.set(var.get())
+        # Place the new CTkOptionMenu in the UI
+        getattr(self, option_menu_attr_name).grid(row=1, column=0, padx=(20, 20), pady=(10, 0))
 
+        # Restore the previous selection or default to the first option
+        var.set(current_value if current_value in new_values else new_values[0])
 
     # additional window for displaying all search information
     def open_additional_window(self):
@@ -479,7 +485,7 @@ class App(customtkinter.CTk):
         
         # Add a button to close the additional window
         close_button = customtkinter.CTkButton(self.additional_window, text=_("Close"), command=self.additional_window.destroy)
-        close_button.pack()
+        close_button.grid()
         
     # set start marker
     def set_start_marker(self, start_iata):
