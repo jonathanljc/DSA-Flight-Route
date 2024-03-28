@@ -1,0 +1,353 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-03-28 14:40+0800\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: main.py:26
+msgid "Flight Map Routing System"
+msgstr "飞行地图路由系统"
+
+#: main.py:67
+msgid "Tile Server:"
+msgstr "瓦片服务器："
+
+#: main.py:69
+msgid "OpenStreetMap"
+msgstr "开放街图"
+
+#: main.py:69 main.py:122
+msgid "Google normal"
+msgstr "谷歌普通地图"
+
+#: main.py:69
+msgid "Google satellite"
+msgstr "谷歌卫星地图"
+
+#: main.py:73
+msgid "Appearance Mode:"
+msgstr "外观模式："
+
+#: main.py:75
+msgid "Light"
+msgstr "亮"
+
+#: main.py:75
+msgid "Dark"
+msgstr "暗"
+
+#: main.py:75 main.py:123
+msgid "System"
+msgstr "系统"
+
+#: main.py:79
+msgid "Start (IATA Code):"
+msgstr "起点（IATA代码）："
+
+#: main.py:82
+msgid "Enter start IATA"
+msgstr "输入起点IATA"
+
+#: main.py:85
+msgid "Destination (IATA Code):"
+msgstr "目的地（IATA代码）："
+
+#: main.py:88
+msgid "Enter destination IATA"
+msgstr "输入目的地IATA"
+
+#: main.py:92 main.py:518
+msgid "Search"
+msgstr "搜索"
+
+#: main.py:97
+msgid "Status:"
+msgstr "状态："
+
+#: main.py:115 main.py:178 main.py:182 main.py:186
+msgid "Search Results"
+msgstr "搜索结果"
+
+#: main.py:121
+msgid "Singapore"
+msgstr "新加坡"
+
+#: main.py:125
+msgid "Ready!"
+msgstr "准备就绪！"
+
+#: main.py:131 main.py:568
+msgid "Search Completed!"
+msgstr "搜索完成！"
+
+#: main.py:133
+msgid "Please search for flights first!"
+msgstr "请先搜索航班！"
+
+#: main.py:138
+msgid "Additional Information"
+msgstr "附加信息"
+
+#: main.py:172
+msgid "Dijkstra Algorithm"
+msgstr "迪杰斯特拉算法"
+
+#: main.py:173
+msgid "A* Algorithm"
+msgstr "A* 算法"
+
+#: main.py:174
+msgid "Bellman-Ford Algorithm"
+msgstr "贝尔曼-福特算法"
+
+#: main.py:190
+msgid "Dijkstra Path: {}"
+msgstr "迪杰斯特拉路径：{}"
+
+#: main.py:196 main.py:210 main.py:225
+msgid "{index+1}. {location1} -> {location2} (Distance: {distance:.2f} km)"
+msgstr "{index+1}. {location1} -> {location2} (距离：{distance:.2f} 公里)"
+
+#: main.py:200
+#, python-brace-format
+msgid "Total Distance: {self.results.dijkstra_total_distance:.2f} km"
+msgstr "总距离：{self.results.dijkstra_total_distance:.2f} 公里"
+
+#: main.py:204
+msgid "A* Path: {' -> '.join(self.results.a_star_all_paths[0])}"
+msgstr "A* 路径：{' -> '.join(self.results.a_star_all_paths[0])}"
+
+#: main.py:214
+#, python-brace-format
+msgid "Total Distance (A*): {self.results.a_star_total_distance:.2f} km"
+msgstr "总距离 (A*)：{self.results.a_star_total_distance:.2f} 公里"
+
+#: main.py:219
+msgid "Bellman Ford Path: {' -> '.join(self.results.bellman_ford_all_paths[0])}"
+msgstr "贝尔曼-福特路径：{' -> '.join(self.results.bellman_ford_all_paths[0])}"
+
+#: main.py:229
+#, python-brace-format
+msgid "Total Distance (Bellman Ford): {self.results.bellman_ford_total_distance:.2f} km"
+msgstr "总距离 (贝尔曼-福特)：{self.results.bellman_ford_total_distance:.2f} 公里"
+
+#: main.py:236 main.py:243 main.py:250
+msgid ""
+"WARNING: UNABLE TO REACH DESTINATION BASED ON PATH\n"
+"(No valid commercial flights routes)"
+msgstr ""
+"警告：无法根据路径到达目的地\n"
+"(没有有效的商业航班路线)"
+
+#: main.py:256
+msgid "Cheapest Path: "
+msgstr "最便宜的路径："
+
+#: main.py:282 main.py:301 main.py:312 main.py:331 main.py:342 main.py:361
+#: main.py:372
+msgid ""
+"{flight['source']} ---------> "
+"{flight['destination']}\t{flight['airlineName']}\t\t${flight['price']}"
+msgstr ""
+"{flight['source']} ---------> "
+"{flight['destination']}\t{flight['airlineName']}\t\t${flight['price']}"
+
+#: main.py:288 main.py:318 main.py:348
+msgid "Direct Flights:"
+msgstr "直达航班："
+
+#: main.py:293 main.py:323 main.py:353
+msgid "No direct flights available"
+msgstr "没有直达航班"
+
+#: main.py:306 main.py:336 main.py:366
+msgid "Connecting Flights:"
+msgstr "转机航班："
+
+#: main.py:378
+msgid "Close"
+msgstr "关闭"
+
+#: main.py:398
+#, python-brace-format
+msgid "Start location ({start_iata}) is not a valid airport in Asia."
+msgstr "起始位置 ({start_iata}) 不是亚洲的有效机场。"
+
+#: main.py:408
+msgid "Geocoding service timed out while fetching start location."
+msgstr "获取起始位置时地理编码服务超时。"
+
+#: main.py:430
+#, python-brace-format
+msgid ""
+"Destination location ({destination_iata}) is not a valid airport in Asia."
+msgstr "目的地位置 ({destination_iata}) 不是亚洲的有效机场。"
+
+#: main.py:440
+msgid "Geocoding service timed out while fetching destination location."
+msgstr "获取目的地位置时地理编码服务超时。"
+
+#: main.py:514
+msgid "Searching Routes, Please Wait..."
+msgstr "正在搜索路线，请稍候..."
+
+#: main.py:524
+#, python-brace-format
+msgid ""
+"Dijkstra's algorithm time(empirical): {self.results.dijkstra_time} 'seconds'"
+msgstr ""
+"迪杰斯特拉算法时间(经验)：{self.results.dijkstra_time} '秒'"
+
+#: main.py:525
+#, python-brace-format
+msgid "Dijkstra's algorithm path: {self.results.dijkstra_path}"
+msgstr "迪杰斯特拉算法路径：{self.results.dijkstra_path}"
+
+#: main.py:526
+#, python-brace-format
+msgid ""
+"Dijkstra's algorithm total distance: {self.results.dijkstra_total_distance}"
+msgstr "迪杰斯特拉算法总距离：{self.results.dijkstra_total_distance}"
+
+#: main.py:527
+#, python-brace-format
+msgid "Dijkstra's algorithm total cost: {self.results.dijkstra_total_cost}"
+msgstr "迪杰斯特拉算法总成本：{self.results.dijkstra_total_cost}"
+
+#: main.py:528
+#, python-brace-format
+msgid "Dijkstra's algorithm all paths: {self.results.dijkstra_all_paths}"
+msgstr "迪杰斯特拉算法所有路径：{self.results.dijkstra_all_paths}"
+
+#: main.py:529
+#, python-brace-format
+msgid ""
+"Dijkstra's algorithm all explored paths: {self.results."
+"dijkstra_total_cost_path}"
+msgstr "迪杰斯特拉算法所有探索过的路径：{self.results.dijkstra_total_cost_path}"
+
+#: main.py:531
+#, python-brace-format
+msgid "A* algorithm time(empirical): {self.results.a_star_time} 'seconds'"
+msgstr "A* 算法时间(经验)：{self.results.a_star_time} '秒'"
+
+#: main.py:532
+#, python-brace-format
+msgid "A* algorithm path: {self.results.a_star_path}"
+msgstr "A* 算法路径：{self.results.a_star_path}"
+
+#: main.py:533
+#, python-brace-format
+msgid "A* algorithm total distance: {self.results.a_star_total_distance}"
+msgstr "A* 算法总距离：{self.results.a_star_total_distance}"
+
+#: main.py:534
+#, python-brace-format
+msgid "A* algorithm total cost: {self.results.a_star_total_cost}"
+msgstr "A* 算法总成本：{self.results.a_star_total_cost}"
+
+#: main.py:535
+#, python-brace-format
+msgid "A* algorithm all paths: {self.results.a_star_all_paths}"
+msgstr "A* 算法所有路径：{self.results.a_star_all_paths}"
+
+#: main.py:536
+#, python-brace-format
+msgid "A* algorithm all explored paths: {self.results.a_star_total_cost_path}"
+msgstr "A* 算法所有探索过的路径：{self.results.a_star_total_cost_path}"
+
+#: main.py:538
+#, python-brace-format
+msgid ""
+"Bellman-Ford algorithm time(empirical): {self.results.bellman_ford_time} "
+"'seconds'"
+msgstr "贝尔曼-福特算法时间(经验)：{self.results.bellman_ford_time} '秒'"
+
+#: main.py:539
+#, python-brace-format
+msgid "Bellman-Ford algorithm path: {self.results.bellman_ford_path}"
+msgstr "贝尔曼-福特算法路径：{self.results.bellman_ford_path}"
+
+#: main.py:540
+#, python-brace-format
+msgid ""
+"Bellman-Ford algorithm total distance: {self.results."
+"bellman_ford_total_distance}"
+msgstr "贝尔曼-福特算法总距离：{self.results.bellman_ford_total_distance}"
+
+#: main.py:541
+#, python-brace-format
+msgid ""
+"Bellman-Ford algorithm total cost: {self.results.bellman_ford_total_cost}"
+msgstr "贝尔曼-福特算法总成本：{self.results.bellman_ford_total_cost}"
+
+#: main.py:542
+#, python-brace-format
+msgid "Bellman-Ford algorithm all paths: {self.results.bellman_ford_all_paths}"
+msgstr "贝尔曼-福特算法所有路径：{self.results.bellman_ford_all_paths}"
+
+#: main.py:543
+#, python-brace-format
+msgid ""
+"Bellman-Ford algorithm all explored paths: {self.results."
+"bellman_ford_all_total_cost_path}"
+msgstr "贝尔曼-福特算法所有探索过的路径：{self.results.bellman_ford_all_total_cost_path}"
+
+#: main.py:560
+msgid "Start IATA:"
+msgstr "起始 IATA："
+
+#: main.py:561
+msgid "Destination IATA:"
+msgstr "目的地 IATA："
+
+#: main.py:573
+msgid "An error occurred:"
+msgstr "发生错误："
+
+#: main.py:575
+msgid "An error occurred during the search."
+msgstr "搜索过程中发生错误。"
+
+#: main.py:596
+#, python-brace-format
+msgid ""
+"Geocoding service timed out while fetching coordinates for {location1} or "
+"{location2}."
+msgstr "获取 {location1} 或 {location2} 的坐标时地理编码服务超时。"
+
+#: main.py:618
+msgid "An error occurred while setting markers or path: {str(e)}"
+msgstr "设置标记或路径时发生错误：{str(e)}"
+
+#: main.py:627
+msgid "Error"
+msgstr "错误"
+
+#: main.py:657
+#, python-brace-format
+msgid "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"
+msgstr "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"
+
+#: main.py:659
+#, python-brace-format
+msgid "https://mt0.google.com/vt/lyrs=m&hl=en&x={x}&y={y}&z={z}&s=Ga"
+msgstr "https://mt0.google.com/vt/lyrs=m&hl=en&x={x}&y={y}&z={z}&s=Ga"
+
+#: main.py:661
+#, python-brace-format
+msgid "https://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}&s=Ga"
+msgstr "https://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}&s=Ga"

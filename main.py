@@ -1,21 +1,32 @@
 import customtkinter
 import time
 import math
+import gettext
+import os
 from tkintermapview import TkinterMapView
 from data import DataFilter
 from routes import FlightGraph
 from flightPlanner import FlightPlanner
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut
-
 from tkinter import ttk # For tabs
+import locale
+
+current_locale, encoding = locale.getdefaultlocale()
+locale_path = 'locales'
+language = gettext.translation('base', localedir=locale_path, languages=['en'], fallback=True)
+language.install()
+_ = language.gettext
+
+
 
 customtkinter.set_appearance_mode("System")
 customtkinter.set_default_color_theme("blue")
 
+
 class App(customtkinter.CTk):
 
-    APP_NAME = "Flight Map Routing System"
+    APP_NAME = _("Flight Map Routing System")
     WIDTH = 800
     HEIGHT = 500
 
@@ -56,37 +67,37 @@ class App(customtkinter.CTk):
 
         self.frame_left.grid_rowconfigure(11, weight=1)
         
-        self.map_label = customtkinter.CTkLabel(self.frame_left, text="Tile Server:", anchor="w")
+        self.map_label = customtkinter.CTkLabel(self.frame_left, text=_("Tile Server:"), anchor="w")
         self.map_label.grid(row=0, column=0, padx=(20, 20), pady=(10, 0))
-        self.map_option_menu = customtkinter.CTkOptionMenu(self.frame_left, values=["OpenStreetMap", "Google normal", "Google satellite"],
+        self.map_option_menu = customtkinter.CTkOptionMenu(self.frame_left, values=[_("OpenStreetMap"), _("Google normal"), _("Google satellite")],
                                                                        command=self.change_map)
         self.map_option_menu.grid(row=1, column=0, padx=(20, 20), pady=(10, 0))
 
-        self.appearance_mode_label = customtkinter.CTkLabel(self.frame_left, text="Appearance Mode:", anchor="w")
+        self.appearance_mode_label = customtkinter.CTkLabel(self.frame_left, text=_("Appearance Mode:"), anchor="w")
         self.appearance_mode_label.grid(row=2, column=0, padx=(20, 20), pady=(10, 0))
-        self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(self.frame_left, values=["Light", "Dark", "System"],
+        self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(self.frame_left, values=[_("Light"), _("Dark"), _("System")],
                                                                        command=self.change_appearance_mode)
         self.appearance_mode_optionemenu.grid(row=3, column=0, padx=(20, 20), pady=(10, 0))
         
-        self.label_start = customtkinter.CTkLabel(self.frame_left, text="Start (IATA Code):", anchor="w")
+        self.label_start = customtkinter.CTkLabel(self.frame_left, text=_("Start (IATA Code):"), anchor="w")
         self.label_start.grid(row=4, column=0, padx=(20, 20), pady=(20, 0))
 
-        self.entry_start = customtkinter.CTkEntry(self.frame_left, placeholder_text="Enter start IATA")
+        self.entry_start = customtkinter.CTkEntry(self.frame_left, placeholder_text=_("Enter start IATA"))
         self.entry_start.grid(row=5, column=0, padx=(20, 20), pady=(10, 0))
 
-        self.label_destination = customtkinter.CTkLabel(self.frame_left, text="Destination (IATA Code):", anchor="w")
+        self.label_destination = customtkinter.CTkLabel(self.frame_left, text=_("Destination (IATA Code):"), anchor="w")
         self.label_destination.grid(row=6, column=0, padx=(20, 20), pady=(10, 0))
 
-        self.entry_destination = customtkinter.CTkEntry(self.frame_left, placeholder_text="Enter destination IATA")
+        self.entry_destination = customtkinter.CTkEntry(self.frame_left, placeholder_text=_("Enter destination IATA"))
         self.entry_destination.grid(row=7, column=0, padx=(20, 20), pady=(10, 0))
 
         self.search_button = customtkinter.CTkButton(master=self.frame_left,
-                                                text="Search",
+                                                text=_("Search"),
                                                 command=self.search_event)
         self.search_button.grid(row=8, column=0, padx=(20, 20), pady=(30, 0))
         
         self.status_label = customtkinter.CTkLabel(self.frame_left, 
-                                                   text="Status:")
+                                                   text=_("Status:"))
         self.status_label.grid(row=9, column=0, padx=(20, 20), pady=(45, 0))
         
         self.status_code = customtkinter.CTkLabel(self.frame_left, textvariable=self.status_variable, wraplength=140, justify="center")
@@ -104,30 +115,130 @@ class App(customtkinter.CTk):
         self.map_widget.grid(row=0, rowspan=1, column=0, columnspan=3, sticky="nswe", padx=(0, 0), pady=(0, 0))
 
         self.additional_button = customtkinter.CTkButton(master=self.frame_right,
-                                                 text="Search Results",
+                                                 text=_("Search Results"),
                                                  command=self.open_additional_window)
         self.additional_button.grid(row=1, column=0, padx=(20, 20), pady=(20, 20), sticky="nsew", columnspan=3)
 
 
         # Set default values
-        self.map_widget.set_address("Singapore")
-        self.map_option_menu.set("Google normal")
-        self.appearance_mode_optionemenu.set("System")
+        self.map_widget.set_address(_("Singapore"))
+        self.map_option_menu.set(_("Google normal"))
+        self.appearance_mode_optionemenu.set(_("System"))
         self.status_code.configure(text_color="green")
-        self.status_variable.set("Ready!")
+        self.status_variable.set(_("Ready!"))
+
+        # ============ Additional Features ============
+        self.language_label = customtkinter.CTkLabel(self.frame_left, text="Language:", anchor="w")
+        self.language_label.grid(row=11, column=0, padx=(20, 20), pady=(10, 0))
+
+        self.language_option_menu = customtkinter.CTkOptionMenu(self.frame_left,
+                                                                values=["English", "中文 (Simplified Chinese)"],
+                                                                command=self.change_language)
+        self.language_option_menu.grid(row=12, column=0, padx=(20, 20), pady=(10, 0))
+        # Create StringVar instances to keep track of option menu selections
+        # Add these lines after initializing the OptionMenu widgets
+        self.map_var = customtkinter.StringVar(value=_("Google normal"))  # Default value
+        self.appearance_mode_var = customtkinter.StringVar(value=_("System"))  # Default value
+
+        # Use the StringVar instances with the OptionMenus
+        self.map_option_menu = customtkinter.CTkOptionMenu(self.frame_left,
+                                                           variable=self.map_var,
+                                                           values=[_("OpenStreetMap"), _("Google normal"), _("Google satellite")],
+                                                           command=self.change_map)
+        self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(self.frame_left,
+                                                                       variable=self.appearance_mode_var,
+                                                                       values=[_("Light"), _("Dark"), _("System")],
+                                                                       command=self.change_appearance_mode)
+
+    def init_language(self, lang_code):
+        global _
+        try:
+            lang = gettext.translation('base', localedir=locale_path, languages=[lang_code])
+        except Exception:
+            lang = gettext.NullTranslations()
+        lang.install()
+        _ = lang.gettext
+        self.refresh_ui()
+
+    def change_language(self, selection):
+        # Map selections to language codes
+        lang_codes = {"English": "en", "中文 (Simplified Chinese)": "zh_CN"}
+        self.init_language(lang_codes.get(selection, "en"))
+
+    def set_default_values(self):
+        self.map_var = customtkinter.StringVar(value=_("Google normal"))
+        self.appearance_mode_var = customtkinter.StringVar(value=_("System"))
+
+        self.map_option_menu = customtkinter.CTkOptionMenu(self.frame_left,
+                                                           variable=self.map_var,
+                                                           values=[_("OpenStreetMap"), _("Google normal"), _("Google satellite")],
+                                                           command=self.change_map)
+        self.map_option_menu.grid(row=1, column=0, padx=(20, 20), pady=(10, 0))
+
+        self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(self.frame_left,
+                                                                       variable=self.appearance_mode_var,
+                                                                       values=[_("Light"), _("Dark"), _("System")],
+                                                                       command=self.change_appearance_mode)
+        self.appearance_mode_optionemenu.grid(row=3, column=0, padx=(20, 20), pady=(10, 0))
+
+        # Call to update the UI text
+        self.refresh_ui()
+    
+    def refresh_ui(self):
+        self.title(_("Flight Map Routing System"))  # Update window title
+        
+        # Update the text for all labels, buttons, etc.
+        self.search_button.configure(text=_("Search"))
+        self.label_start.configure(text=_("Start (IATA Code):"))
+        self.label_destination.configure(text=_("Destination (IATA Code):"))
+        self.map_label.configure(text=_("Tile Server:"))
+        self.appearance_mode_label.configure(text=_("Appearance Mode:"))
+        self.status_label.configure(text=_("Status:"))
+        self.additional_button.configure(text=_("Search Results"))
+        self.language_label.configure(text=_("Language:"))
+
+        self.update_option_menu(self.map_option_menu, self.map_var, [_("OpenStreetMap"), _("Google normal"), _("Google satellite")])
+        self.update_option_menu(self.appearance_mode_optionemenu, self.appearance_mode_var, [_("Light"), _("Dark"), _("System")])
+        
+        # Update the variable text if used in labels or elsewhere
+        self.status_variable.set(_("Ready!"))
+
+        # Force a redraw of the UI to reflect changes
+        self.update_idletasks()
+
+
+    def update_option_menu(self, option_menu, var, new_values):
+        # Get the current selection to restore it later
+        current_value = var.get()
+
+        # Update the values in the OptionMenu
+        menu = option_menu['menu']
+        menu.delete(0, "end")
+        for value in new_values:
+            menu.add_command(label=value, command=lambda v=value: var.set(v))
+
+        # Try to restore the previous selection if it exists in the new values
+        if current_value in new_values:
+            var.set(current_value)
+        else:
+            # If the current value is not in the new values, set it to the first entry
+            var.set(new_values[0])
+
+        # Update the OptionMenu display to match the selected value
+        option_menu.set(var.get())
 
 
     # additional window for displaying all search information
     def open_additional_window(self):
         
-        if self.status_variable.get() != "Search Completed!":
+        if self.status_variable.get() != _("Search Completed!"):
             self.status_code.configure(text_color="red")
-            self.status_variable.set("Please search for flights first!")
+            self.status_variable.set(_("Please search for flights first!"))
             return
         
         print("Additional Information")
         self.additional_window = customtkinter.CTkToplevel(self)
-        self.additional_window.title("Additional Information")
+        self.additional_window.title(_("Additional Information"))
         self.additional_window.geometry("600x600")
         self.additional_window.minsize(600, 600)
         
@@ -161,91 +272,91 @@ class App(customtkinter.CTk):
         tab3 = ttk.Frame(notebook)
 
         # Add the frames to the notebook
-        notebook.add(tab1, text='Dijkstra Algorithm')
-        notebook.add(tab2, text='A* Algorithm')
-        notebook.add(tab3, text='Bellman-Ford Algorithm')
+        notebook.add(tab1, text=_('Dijkstra Algorithm'))
+        notebook.add(tab2, text=_('A* Algorithm'))
+        notebook.add(tab3, text=_('Bellman-Ford Algorithm'))
 
         
         # Create a scrollable frame with a black background
-        scrollable_frame = customtkinter.CTkScrollableFrame(tab1, bg_color="black", label_text="Search Results")
+        scrollable_frame = customtkinter.CTkScrollableFrame(tab1, bg_color="black", label_text=_("Search Results"))
         scrollable_frame.pack(fill="both", expand=True)
 
         # Second scrollable frame
-        scrollable_frame2 = customtkinter.CTkScrollableFrame(tab2, bg_color="black", label_text="Search Results")
+        scrollable_frame2 = customtkinter.CTkScrollableFrame(tab2, bg_color="black", label_text=_("Search Results"))
         scrollable_frame2.pack(fill="both", expand=True)
 
         # Third scrollable frame
-        scrollable_frame3 = customtkinter.CTkScrollableFrame(tab3, bg_color="black", label_text="Search Results")
+        scrollable_frame3 = customtkinter.CTkScrollableFrame(tab3, bg_color="black", label_text=_("Search Results"))
         scrollable_frame3.pack(fill="both", expand=True)
         
         # Create labels to display information
-        dijkstra_path_label = customtkinter.CTkLabel(scrollable_frame, text=f"Dijkstra Path: {' -> '.join(self.results.dijkstra_all_paths[0])}")
+        dijkstra_path_label = customtkinter.CTkLabel(scrollable_frame, text=_("Dijkstra Path: {}").format(' -> '.join(self.results.dijkstra_all_paths[0])))
         dijkstra_path_label.pack()
 
         # Display the Dijkstra algorithm path
         for index, segment in enumerate(self.results.dijkstra_path):
             location1, location2, distance = segment
-            path_label = customtkinter.CTkLabel(scrollable_frame, text=f"{index+1}. {location1} -> {location2} (Distance: {distance:.2f} km)")
+            path_label = customtkinter.CTkLabel(scrollable_frame, text=_(f"{index+1}. {location1} -> {location2} (Distance: {distance:.2f} km)"))
             path_label.pack()
 
         # Display total distance for Dijkstra's algorithm
-        total_distance_label = customtkinter.CTkLabel(scrollable_frame, text=f"Total Distance: {self.results.dijkstra_total_distance:.2f} km")
+        total_distance_label = customtkinter.CTkLabel(scrollable_frame, text=_(f"Total Distance: {self.results.dijkstra_total_distance:.2f} km"))
         total_distance_label.pack()
 
         # Create labels to display information for A* algorithm
-        a_star_path_label = customtkinter.CTkLabel(scrollable_frame2, text=f"A* Path: {' -> '.join(self.results.a_star_all_paths[0])}")
+        a_star_path_label = customtkinter.CTkLabel(scrollable_frame2, text=_(f"A* Path: {' -> '.join(self.results.a_star_all_paths[0])}"))
         a_star_path_label.pack()
 
         # Display the A* algorithm path
         for index, segment in enumerate(self.results.a_star_path):
             location1, location2, distance = segment
-            path_label = customtkinter.CTkLabel(scrollable_frame2, text=f"{index+1}. {location1} -> {location2} (Distance: {distance:.2f} km)")
+            path_label = customtkinter.CTkLabel(scrollable_frame2, text=_(f"{index+1}. {location1} -> {location2} (Distance: {distance:.2f} km)"))
             path_label.pack()
 
         # Display total distance for A* algorithm
-        total_distance_label = customtkinter.CTkLabel(scrollable_frame2, text=f"Total Distance (A*): {self.results.a_star_total_distance:.2f} km")
+        total_distance_label = customtkinter.CTkLabel(scrollable_frame2, text=_(f"Total Distance (A*): {self.results.a_star_total_distance:.2f} km"))
         total_distance_label.pack()
 
 
         # Create labels to display information for Bellman-Ford algorithm
-        bellman_ford_path_label = customtkinter.CTkLabel(scrollable_frame3, text=f"Bellman Ford Path: {' -> '.join(self.results.bellman_ford_all_paths[0])}")
+        bellman_ford_path_label = customtkinter.CTkLabel(scrollable_frame3, text=_(f"Bellman Ford Path: {' -> '.join(self.results.bellman_ford_all_paths[0])}"))
         bellman_ford_path_label.pack()
 
         # Display the Bellman Ford algorithm path
         for index, segment in enumerate(self.results.bellman_ford_path):
             location1, location2, distance = segment
-            path_label = customtkinter.CTkLabel(scrollable_frame3, text=f"{index+1}. {location1} -> {location2} (Distance: {distance:.2f} km)")
+            path_label = customtkinter.CTkLabel(scrollable_frame3, text=_(f"{index+1}. {location1} -> {location2} (Distance: {distance:.2f} km)"))
             path_label.pack()
 
         # Display total distance for Bellman Ford algorithm
-        total_distance_label = customtkinter.CTkLabel(scrollable_frame3, text=f"Total Distance (Bellman Ford): {self.results.bellman_ford_total_distance:.2f} km")
+        total_distance_label = customtkinter.CTkLabel(scrollable_frame3, text=_(f"Total Distance (Bellman Ford): {self.results.bellman_ford_total_distance:.2f} km"))
         total_distance_label.pack()
 
         # Show Warning if Direct and Connecting Flights is unable to reach destination based on Calculated Path
         if self.results.dijkstra_valid_travel == 0:
             dijkstra_connecting_warning_label = customtkinter.CTkLabel(
                 scrollable_frame, 
-                text="WARNING: UNABLE TO REACH DESTINATION BASED ON PATH\n(No valid commercial flights routes)",
+                text=_("WARNING: UNABLE TO REACH DESTINATION BASED ON PATH\n(No valid commercial flights routes)"),
                 fg_color="red")
             dijkstra_connecting_warning_label.pack()
 
         if self.results.a_star_valid_travel == 0:
             a_star_connecting_warning_label = customtkinter.CTkLabel(
                 scrollable_frame2, 
-                text="WARNING: UNABLE TO REACH DESTINATION BASED ON PATH\n(No valid commercial flights routes)",
+                text=_("WARNING: UNABLE TO REACH DESTINATION BASED ON PATH\n(No valid commercial flights routes)"),
                 fg_color="red")
             a_star_connecting_warning_label.pack()
         
         if self.results.bellman_ford_valid_travel == 0:
             bellman_ford_connecting_warning_label = customtkinter.CTkLabel(
                 scrollable_frame3, 
-                text="WARNING: UNABLE TO REACH DESTINATION BASED ON PATH\n(No valid commercial flights routes)",
+                text=_("WARNING: UNABLE TO REACH DESTINATION BASED ON PATH\n(No valid commercial flights routes)"),
                 fg_color="red")
             bellman_ford_connecting_warning_label.pack()
 
         
         # Display the cheapest path for Dijkstra's algorithm
-        cheapest_path_label = customtkinter.CTkLabel(scrollable_frame, text=f"Cheapest Path: ")
+        cheapest_path_label = customtkinter.CTkLabel(scrollable_frame, text=_(f"Cheapest Path: "))
         cheapest_path_label.pack()
         
         # Create a dictionary to store the cheapest flight for each unique combination of source and destination
@@ -271,18 +382,18 @@ class App(customtkinter.CTk):
         for flight in cheapest_flights.values():
             flight_button = customtkinter.CTkButton(
                 scrollable_frame, 
-                text=f"{flight['source']} ---------> {flight['destination']}\t{flight['airlineName']}\t\t${flight['price']}", 
+                text=_(f"{flight['source']} ---------> {flight['destination']}\t{flight['airlineName']}\t\t${flight['price']}"), 
                 command=None,
                 )
             flight_button.pack(pady=5)
                 
         # Display dijkstra direct and connecting flights
-        dijkstra_direct_flights_label = customtkinter.CTkLabel(scrollable_frame, text="Direct Flights:")
+        dijkstra_direct_flights_label = customtkinter.CTkLabel(scrollable_frame, text=_("Direct Flights:"))
         dijkstra_direct_flights_label.pack()
         if len(self.results.dijkstra_direct_flights) == 0:
             flight_button = customtkinter.CTkButton(
                 scrollable_frame, 
-                text="No direct flights available", 
+                text=_("No direct flights available"), 
                 command=None,
                 )
             flight_button.pack(pady=5)
@@ -290,29 +401,29 @@ class App(customtkinter.CTk):
             for flight in self.results.dijkstra_direct_flights:
                 flight_button = customtkinter.CTkButton(
                     scrollable_frame, 
-                    text=f"{flight['source']} ---------> {flight['destination']}\t{flight['airlineName']}\t\t${flight['price']}", 
+                    text=_(f"{flight['source']} ---------> {flight['destination']}\t{flight['airlineName']}\t\t${flight['price']}"), 
                     command=None,
                     )
                 flight_button.pack(pady=5)
             
-        dijkstra_connecting_flights_label = customtkinter.CTkLabel(scrollable_frame, text="Connecting Flights:")
+        dijkstra_connecting_flights_label = customtkinter.CTkLabel(scrollable_frame, text=_("Connecting Flights:"))
         dijkstra_connecting_flights_label.pack()
 
         for flight in self.results.dijkstra_connecting_flights:
             flight_button = customtkinter.CTkButton(
                 scrollable_frame, 
-                text=f"{flight['source']} ---------> {flight['destination']}\t{flight['airlineName']}\t\t${flight['price']}", 
+                text=_(f"{flight['source']} ---------> {flight['destination']}\t{flight['airlineName']}\t\t${flight['price']}"), 
                 command=None,
                 )
             flight_button.pack(pady=5)
             
         # Display a_star direct and connecting flights
-        a_star_direct_flights_label = customtkinter.CTkLabel(scrollable_frame2, text="Direct Flights:")
+        a_star_direct_flights_label = customtkinter.CTkLabel(scrollable_frame2, text=_("Direct Flights:"))
         a_star_direct_flights_label.pack()
         if len(self.results.a_star_direct_flights) == 0:
             flight_button = customtkinter.CTkButton(
                 scrollable_frame2, 
-                text="No direct flights available", 
+                text=_("No direct flights available"), 
                 command=None,
                 )
             flight_button.pack(pady=5)
@@ -320,29 +431,29 @@ class App(customtkinter.CTk):
             for flight in self.results.a_star_direct_flights:
                 flight_button = customtkinter.CTkButton(
                     scrollable_frame2, 
-                    text=f"{flight['source']} ---------> {flight['destination']}\t{flight['airlineName']}\t\t${flight['price']}", 
+                    text=_(f"{flight['source']} ---------> {flight['destination']}\t{flight['airlineName']}\t\t${flight['price']}"), 
                     command=None,
                     )
                 flight_button.pack(pady=5)
             
-        a_star_connecting_flights_label = customtkinter.CTkLabel(scrollable_frame2, text="Connecting Flights:")
+        a_star_connecting_flights_label = customtkinter.CTkLabel(scrollable_frame2, text=_("Connecting Flights:"))
         a_star_connecting_flights_label.pack()
 
         for flight in self.results.a_star_connecting_flights:
             flight_button = customtkinter.CTkButton(
                 scrollable_frame2, 
-                text=f"{flight['source']} ---------> {flight['destination']}\t{flight['airlineName']}\t\t${flight['price']}", 
+                text=_(f"{flight['source']} ---------> {flight['destination']}\t{flight['airlineName']}\t\t${flight['price']}"), 
                 command=None,
                 )
             flight_button.pack(pady=5)
 
         # Display bellman_ford direct and connecting flights
-        bellman_ford_direct_flights_label = customtkinter.CTkLabel(scrollable_frame3, text="Direct Flights:")
+        bellman_ford_direct_flights_label = customtkinter.CTkLabel(scrollable_frame3, text=_("Direct Flights:"))
         bellman_ford_direct_flights_label.pack()
         if len(self.results.bellman_ford_direct_flights) == 0:
             flight_button = customtkinter.CTkButton(
                 scrollable_frame3, 
-                text="No direct flights available", 
+                text=_("No direct flights available"), 
                 command=None,
                 )
             flight_button.pack(pady=5)
@@ -350,24 +461,24 @@ class App(customtkinter.CTk):
             for flight in self.results.bellman_ford_direct_flights:
                 flight_button = customtkinter.CTkButton(
                     scrollable_frame3, 
-                    text=f"{flight['source']} ---------> {flight['destination']}\t{flight['airlineName']}\t\t${flight['price']}", 
+                    text=_(f"{flight['source']} ---------> {flight['destination']}\t{flight['airlineName']}\t\t${flight['price']}"), 
                     command=None,
                     )
                 flight_button.pack(pady=5)
             
-        bellman_ford_connecting_flights_label = customtkinter.CTkLabel(scrollable_frame3, text="Connecting Flights:")
+        bellman_ford_connecting_flights_label = customtkinter.CTkLabel(scrollable_frame3, text=_("Connecting Flights:"))
         bellman_ford_connecting_flights_label.pack()
 
         for flight in self.results.bellman_ford_connecting_flights:
             flight_button = customtkinter.CTkButton(
                 scrollable_frame3, 
-                text=f"{flight['source']} ---------> {flight['destination']}\t{flight['airlineName']}\t\t${flight['price']}", 
+                text=_(f"{flight['source']} ---------> {flight['destination']}\t{flight['airlineName']}\t\t${flight['price']}"), 
                 command=None,
                 )
             flight_button.pack(pady=5)
         
         # Add a button to close the additional window
-        close_button = customtkinter.CTkButton(self.additional_window, text="Close", command=self.additional_window.destroy)
+        close_button = customtkinter.CTkButton(self.additional_window, text=_("Close"), command=self.additional_window.destroy)
         close_button.pack()
         
     # set start marker
@@ -387,7 +498,7 @@ class App(customtkinter.CTk):
                 
                 
                 if start_iata not in self.airport_data:
-                    self.show_error_message(f"Start location ({start_iata}) is not a valid airport in Asia.")
+                    self.show_error_message(_(f"Start location ({start_iata}) is not a valid airport in Asia."))
                     self.start_coordinate = None
                     self.map_widget.set_position(start_lat, start_lon)
                     self.map_widget.set_zoom(3)
@@ -397,7 +508,7 @@ class App(customtkinter.CTk):
                 self.start_coordinate = (start_lat, start_lon)
         
         except GeocoderTimedOut:
-            self.show_error_message("Geocoding service timed out while fetching start location.")
+            self.show_error_message(_("Geocoding service timed out while fetching start location."))
 
     # set destination marker
     def set_destination_marker(self, destination_iata):
@@ -419,7 +530,7 @@ class App(customtkinter.CTk):
                 
                 # Check if the location is in Asia
                 if destination_iata not in self.airport_data:
-                    self.show_error_message(f"Destination location ({destination_iata}) is not a valid airport in Asia.")
+                    self.show_error_message(_(f"Destination location ({destination_iata}) is not a valid airport in Asia."))
                     self.destination_coordinate = None
                     self.map_widget.set_position(dest_lat, dest_lon)
                     self.map_widget.set_zoom(3)
@@ -429,7 +540,7 @@ class App(customtkinter.CTk):
                 self.destination_coordinate = (dest_lat, dest_lon)
                 
         except GeocoderTimedOut:
-            self.show_error_message("Geocoding service timed out while fetching destination location.")
+            self.show_error_message(_("Geocoding service timed out while fetching destination location."))
    
    # calculate zoom level
     def calculate_zoom_level(self, min_lat, max_lat, min_lon, max_lon):
@@ -503,44 +614,36 @@ class App(customtkinter.CTk):
             
             # Update status to indicate searching
             self.status_code.configure(text_color="red")
-            self.status_variable.set("Searching Routes, Please Wait...")
+            self.status_variable.set(_("Searching Routes, Please Wait..."))
             self.update()
             
             # Perform search operation
-            print("Search")
+            print(_("Search"))
 
             self.planner = FlightPlanner(start_iata, destination_iata)
             self.planner.create_graph()
             self.results = self.planner.find_flights(start_iata, destination_iata)
 
-            # For checking the "results" returned from line above
-            print(f"Dijkstra's algorithm time(empirical): {self.results.dijkstra_time} 'seconds'")
-            print(f"Dijkstra's algorithm path: {self.results.dijkstra_path}")
-            print(f"Dijkstra's algorithm total distance: {self.results.dijkstra_total_distance}")
-            print(f"Dijkstra's algorithm total cost: {self.results.dijkstra_total_cost}")
-            # print(f"Dijkstra's algorithm direct flights: {self.results.dijkstra_direct_flights}")
-            # print(f"Dijkstra's algorithm connecting flights: {self.results.dijkstra_connecting_flights}")
-            print(f"Dijkstra's algorithm all paths: {self.results.dijkstra_all_paths}")
-            print(f"Dijkstra's algorithm all explored paths: {self.results.dijkstra_total_cost_path}")  # Print all explored paths
-            
-            print(f"A* algorithm time(empirical): {self.results.a_star_time} 'seconds'")
-            print(f"A* algorithm path: {self.results.a_star_path}")
-            print(f"A* algorithm total distance: {self.results.a_star_total_distance}")
-            print(f"A* algorithm total cost: {self.results.a_star_total_cost}")
-            # print(f"A* algorithm direct flights: {self.results.a_star_direct_flights}")
-            # print(f"A* algorithm connecting flights: {self.results.a_star_connecting_flights}")
-            print(f"A* algorithm all paths: {self.results.a_star_all_paths}")
-            print(f"A* algorithm all explored paths: {self.results.a_star_total_cost_path}")  # Print all explored paths
-            
-            # print the results of the Bellman-Ford algorithm
-            print(f"Bellman-Ford algorithm time(empirical): {self.results.bellman_ford_time} 'seconds'")
-            print(f"Bellman-Ford algorithm path: {self.results.bellman_ford_path}")
-            print(f"Bellman-Ford algorithm total distance: {self.results.bellman_ford_total_distance}")
-            print(f"Bellman-Ford algorithm total cost: {self.results.bellman_ford_total_cost}")
-            # print(f"Bellman-Ford algorithm direct flights: {self.results.bellman_ford_direct_flights}")
-            # print(f"Bellman-Ford algorithm connecting flights: {self.results.bellman_ford_connecting_flights}")
-            print(f"Bellman-Ford algorithm all paths: {self.results.bellman_ford_all_paths}")
-            print(f"Bellman-Ford algorithm all explored paths: {self.results.bellman_ford_all_total_cost_path}")
+            print(_(f"Dijkstra's algorithm time(empirical): {self.results.dijkstra_time} 'seconds'"))
+            print(_(f"Dijkstra's algorithm path: {self.results.dijkstra_path}"))
+            print(_(f"Dijkstra's algorithm total distance: {self.results.dijkstra_total_distance}"))
+            print(_(f"Dijkstra's algorithm total cost: {self.results.dijkstra_total_cost}"))
+            print(_(f"Dijkstra's algorithm all paths: {self.results.dijkstra_all_paths}"))
+            print(_(f"Dijkstra's algorithm all explored paths: {self.results.dijkstra_total_cost_path}"))
+
+            print(_(f"A* algorithm time(empirical): {self.results.a_star_time} 'seconds'"))
+            print(_(f"A* algorithm path: {self.results.a_star_path}"))
+            print(_(f"A* algorithm total distance: {self.results.a_star_total_distance}"))
+            print(_(f"A* algorithm total cost: {self.results.a_star_total_cost}"))
+            print(_(f"A* algorithm all paths: {self.results.a_star_all_paths}"))
+            print(_(f"A* algorithm all explored paths: {self.results.a_star_total_cost_path}"))
+
+            print(_(f"Bellman-Ford algorithm time(empirical): {self.results.bellman_ford_time} 'seconds'"))
+            print(_(f"Bellman-Ford algorithm path: {self.results.bellman_ford_path}"))
+            print(_(f"Bellman-Ford algorithm total distance: {self.results.bellman_ford_total_distance}"))
+            print(_(f"Bellman-Ford algorithm total cost: {self.results.bellman_ford_total_cost}"))
+            print(_(f"Bellman-Ford algorithm all paths: {self.results.bellman_ford_all_paths}"))
+            print(_(f"Bellman-Ford algorithm all explored paths: {self.results.bellman_ford_all_total_cost_path}"))
             
             # print the results of the DFS algorithm
         #    print(f"DFS algorithm time(empirical): {self.results.dfs_time} 'seconds'")
@@ -557,22 +660,22 @@ class App(customtkinter.CTk):
           
             
             # Do something with the input values
-            print("Start IATA:", start_iata)
-            print("Destination IATA:", destination_iata)
+            print(_("Start IATA:"), start_iata)
+            print(_("Destination IATA:"), destination_iata)
             
             # Set markers and paths for the Dijkstra path
             
             path_markers = self.setMarkersAndPaths(self.results.dijkstra_path)
 
             self.status_code.configure(text_color="green")
-            self.status_variable.set("Search Completed!")
+            self.status_variable.set(_("Search Completed!"))
             self.update()
             
         except Exception as e:
             # Handle the error
-            print("An error occurred:", e)
+            print(_("An error occurred:"), e)
             self.status_code.configure(text_color="red")
-            self.status_variable.set("An error occurred during the search.")
+            self.status_variable.set(_("An error occurred during the search."))
             self.show_error_message(str(e))
 
     def setMarkersAndPaths(self, path):
@@ -593,7 +696,7 @@ class App(customtkinter.CTk):
                 location1_coordinates = geolocator.geocode(searchLoc1)
                 location2_coordinates = geolocator.geocode(searchLoc2)
             except GeocoderTimedOut:
-                self.show_error_message(f"Geocoding service timed out while fetching coordinates for {location1} or {location2}.")
+                self.show_error_message(_(f"Geocoding service timed out while fetching coordinates for {location1} or {location2}."))
                 return
             
             if location1_coordinates and location2_coordinates:
@@ -615,7 +718,7 @@ class App(customtkinter.CTk):
                     path = self.map_widget.set_path([(location1_lat, location1_lon), (location2_lat, location2_lon)], color="red")
                     path_markers.append(path)
                 except Exception as e:
-                    self.show_error_message(f"An error occurred while setting markers or path: {str(e)}")
+                    self.show_error_message(_(f"An error occurred while setting markers or path: {str(e)}"))
                     return
 
         # Return the list of markers and paths
@@ -624,7 +727,7 @@ class App(customtkinter.CTk):
     def show_error_message(self, message):
         # Create a new top-level window for the error message
         error_window = customtkinter.CTkToplevel(self)
-        error_window.title("Error")
+        error_window.title(_("Error"))
         error_window.geometry("300x200")
         
         error_window.attributes("-topmost", True)
@@ -654,11 +757,11 @@ class App(customtkinter.CTk):
 
     def change_map(self, new_map: str):
         if new_map == "OpenStreetMap":
-            self.map_widget.set_tile_server("https://a.tile.openstreetmap.org/{z}/{x}/{y}.png")
+            self.map_widget.set_tile_server(_("https://a.tile.openstreetmap.org/{z}/{x}/{y}.png"))
         elif new_map == "Google normal":
-            self.map_widget.set_tile_server("https://mt0.google.com/vt/lyrs=m&hl=en&x={x}&y={y}&z={z}&s=Ga", max_zoom=22)
+            self.map_widget.set_tile_server(_("https://mt0.google.com/vt/lyrs=m&hl=en&x={x}&y={y}&z={z}&s=Ga"), max_zoom=22)
         elif new_map == "Google satellite":
-            self.map_widget.set_tile_server("https://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}&s=Ga", max_zoom=22)
+            self.map_widget.set_tile_server(_("https://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}&s=Ga"), max_zoom=22)
 
     def on_closing(self, event=0):
         if self.additional_window:
@@ -672,4 +775,5 @@ class App(customtkinter.CTk):
 
 if __name__ == "__main__":
     app = App()
+    # app.change_language("English")
     app.start()
