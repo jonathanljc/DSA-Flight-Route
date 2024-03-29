@@ -189,12 +189,15 @@ class FlightGraph:
                         elif route["destination"] != shortest_path[-1] and route["source"] != shortest_path[0] and route["destination"] != shortest_path[0]:
                             connecting_flights.append(route)
 
-        for route in connecting_flights:
-            if route['destination'] == shortest_path[-1]:
-                validTravelFlag = 1
-                break
-            else:
-                validTravelFlag = 0
+        if len(connecting_flights) > 0:
+            for route in connecting_flights:
+                if route['destination'] == shortest_path[-1]:
+                    validTravelFlag = 1
+                    break
+                else:
+                    validTravelFlag = 0
+        else:
+            validTravelFlag = 1
 
         return direct_flights, connecting_flights, validTravelFlag
     
