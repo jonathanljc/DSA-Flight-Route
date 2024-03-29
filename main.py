@@ -99,7 +99,7 @@ class App(customtkinter.CTk):
         self.entry_destination.grid(row=7, column=0, padx=(20, 20), pady=(10, 0))
 
 
-        self.algorithm_label = customtkinter.CTkLabel(self.frame_left, text=_("Algorithm"), anchor="w")
+        self.algorithm_label = customtkinter.CTkLabel(self.frame_left, text=_("Choose Path:"), anchor="w")
         self.algorithm_label.grid(row=8, column=0, padx=(20, 20), pady=(10, 0))
         self.algorithm_optionmenu = customtkinter.CTkOptionMenu(self.frame_left, values=[_("Dijkstra"), _("A*"), _("Bellman-Ford"), _("Cheapest Path")],
                                                                        command=self.change_algorithm)
