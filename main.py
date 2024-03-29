@@ -17,7 +17,7 @@ locale.setlocale(locale.LC_ALL, '')
 
 # Get the current locale and encoding
 current_locale = locale.getlocale()
-encoding = locale.getencoding()
+encoding = locale.getpreferredencoding()
 
 locale_path = 'locales'
 language = gettext.translation('base', localedir=locale_path, languages=['en'], fallback=True)
@@ -33,8 +33,8 @@ customtkinter.set_default_color_theme("blue")
 class App(customtkinter.CTk):
 
     APP_NAME = _("Flight Map Routing System")
-    WIDTH = 800
-    HEIGHT = 500
+    WIDTH = 1000
+    HEIGHT = 700
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -56,6 +56,7 @@ class App(customtkinter.CTk):
         self.destination_coordinate = None
         self.airport_data = DataFilter.filter_airport_data(self)
         self.status_variable = customtkinter.Variable()  # Variable to hold the status
+        self.selected_algorithm = customtkinter.StringVar(value=_("Dijkstra"))
 
         # ============ create two CTkFrames ============
 
@@ -97,17 +98,25 @@ class App(customtkinter.CTk):
         self.entry_destination = customtkinter.CTkEntry(self.frame_left, placeholder_text=_("Enter destination IATA"))
         self.entry_destination.grid(row=7, column=0, padx=(20, 20), pady=(10, 0))
 
+
+        self.algorithm_label = customtkinter.CTkLabel(self.frame_left, text=_("Algorithm"), anchor="w")
+        self.algorithm_label.grid(row=8, column=0, padx=(20, 20), pady=(10, 0))
+        self.algorithm_optionmenu = customtkinter.CTkOptionMenu(self.frame_left, values=[_("Dijkstra"), _("A*"), _("Bellman-Ford"), _("Cheapest Path")],
+                                                                       command=self.change_algorithm)
+        self.algorithm_optionmenu.grid(row=9, column=0, padx=(20, 20), pady=(10, 0))
+
+
         self.search_button = customtkinter.CTkButton(master=self.frame_left,
                                                 text=_("Search"),
                                                 command=self.search_event)
-        self.search_button.grid(row=8, column=0, padx=(20, 20), pady=(30, 0))
+        self.search_button.grid(row=10, column=0, padx=(20, 20), pady=(30, 0))
         
         self.status_label = customtkinter.CTkLabel(self.frame_left, 
                                                    text=_("Status:"))
-        self.status_label.grid(row=9, column=0, padx=(20, 20), pady=(45, 0))
+        self.status_label.grid(row=11, column=0, padx=(20, 20), pady=(45, 0))
         
         self.status_code = customtkinter.CTkLabel(self.frame_left, textvariable=self.status_variable, wraplength=140, justify="center")
-        self.status_code.grid(row=10, column=0, padx=(10, 10), pady=(1, 0))
+        self.status_code.grid(row=12, column=0, padx=(10, 10), pady=(1, 0))
 
 
         # ============ frame_right ============
@@ -127,6 +136,7 @@ class App(customtkinter.CTk):
 
 
         # Set default values
+        self.map_var = customtkinter.StringVar(value=_("Google normal"))
         self.map_widget.set_address(_("Singapore"))
         self.map_option_menu.set(_("Google normal"))
         self.appearance_mode_optionemenu.set(_("System"))
@@ -134,13 +144,14 @@ class App(customtkinter.CTk):
         self.status_variable.set(_("Ready!"))
 
         # ============ Additional Features ============
+
         self.language_label = customtkinter.CTkLabel(self.frame_left, text="Language:", anchor="w")
-        self.language_label.grid(row=11, column=0, padx=(20, 20), pady=(10, 0))
+        self.language_label.grid(row=100, column=0, sticky='s', pady=(0, 20))  # Adjust row number and padding as needed
 
         self.language_option_menu = customtkinter.CTkOptionMenu(self.frame_left,
                                                                 values=["English", "中文 (Simplified Chinese)"],
                                                                 command=self.change_language)
-        self.language_option_menu.grid(row=12, column=0, padx=(20, 20), pady=(10, 0))
+        self.language_option_menu.grid(row=101, column=0, sticky='s', pady=(0, 20))  # Adjust row number and padding as needed
         # Create StringVar instances to keep track of option menu selections
         # Add these lines after initializing the OptionMenu widgets
         self.map_var = customtkinter.StringVar(value=_("Google normal"))  # Default value
@@ -155,6 +166,7 @@ class App(customtkinter.CTk):
                                                                        variable=self.appearance_mode_var,
                                                                        values=[_("Light"), _("Dark"), _("System")],
                                                                        command=self.change_appearance_mode)
+        self.change_map(self.map_var.get())
 
     def init_language(self, lang_code):
         global _
@@ -170,6 +182,9 @@ class App(customtkinter.CTk):
         # Map selections to language codes
         lang_codes = {"English": "en", "中文 (Simplified Chinese)": "zh_CN"}
         self.init_language(lang_codes.get(selection, "en"))
+
+    def change_algorithm(self, algorithm):
+        self.selected_algorithm.set(algorithm)
 
     def set_default_values(self):
         self.map_var = customtkinter.StringVar(value=_("Google normal"))
@@ -669,9 +684,16 @@ class App(customtkinter.CTk):
             print(_("Start IATA:"), start_iata)
             print(_("Destination IATA:"), destination_iata)
             
-            # Set markers and paths for the Dijkstra path
-            
-            path_markers = self.setMarkersAndPaths(self.results.dijkstra_path)
+            # Set markers and paths for the Dijkstra path    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            if self.selected_algorithm.get() == "Dijkstra":
+                path_markers = self.setMarkersAndPaths(self.results.dijkstra_path)
+            elif self.selected_algorithm.get() == "A*":
+                path_markers = self.setMarkersAndPaths(self.results.a_star_path)
+            elif self.selected_algorithm.get() == "Bellman-Ford":
+                path_markers = self.setMarkersAndPaths(self.results.bellman_ford_path)
+            elif self.selected_algorithm.get() == "Cheapest Path": # Edit
+                path_markers = self.setMarkersAndPaths(self.results.dijkstra_path)
+                
 
             self.status_code.configure(text_color="green")
             self.status_variable.set(_("Search Completed!"))
