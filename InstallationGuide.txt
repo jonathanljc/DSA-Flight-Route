@@ -1,0 +1,19 @@
+Requirements:
+
+- Python
+A successful Python installation for your system
+
+- pip module in Python (to install libraries)
+if pip is not installed: "python -m ensurepip --default-pip"
+
+- CustomTkinter library (for our GUI)
+"pip install customtkinter"
+
+- tkintermapview library for (our map GUI)
+"pip install tkintermapview"
+
+- GeoPy library (for getting extra geological information on Airports)
+"pip install geopy"
+
+- scipy library (for the KD-Tree Graph)
+"pip install scipy"
