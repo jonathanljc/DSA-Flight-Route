@@ -17,7 +17,7 @@ locale.setlocale(locale.LC_ALL, '')
 
 # Get the current locale and encoding
 current_locale = locale.getlocale()
-encoding = locale.getencoding()
+encoding = locale.getpreferredencoding()
 
 locale_path = 'locales'
 language = gettext.translation('base', localedir=locale_path, languages=['en'], fallback=True)
@@ -34,7 +34,7 @@ class App(customtkinter.CTk):
 
     APP_NAME = _("Flight Map Routing System")
     WIDTH = 800
-    HEIGHT = 500
+    HEIGHT = 600
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -71,7 +71,7 @@ class App(customtkinter.CTk):
 
         # ============ frame_left ============
 
-        self.frame_left.grid_rowconfigure(11, weight=1)
+        self.frame_left.grid_rowconfigure(12, weight=1)
         
         self.map_label = customtkinter.CTkLabel(self.frame_left, text=_("Tile Server:"), anchor="w")
         self.map_label.grid(row=0, column=0, padx=(20, 20), pady=(10, 0))
@@ -135,12 +135,12 @@ class App(customtkinter.CTk):
 
         # ============ Additional Features ============
         self.language_label = customtkinter.CTkLabel(self.frame_left, text="Language:", anchor="w")
-        self.language_label.grid(row=11, column=0, padx=(20, 20), pady=(10, 0))
+        self.language_label.grid(row=11, column=0, padx=(10, 10), pady=(0, 0))
 
         self.language_option_menu = customtkinter.CTkOptionMenu(self.frame_left,
                                                                 values=["English", "中文 (Simplified Chinese)"],
                                                                 command=self.change_language)
-        self.language_option_menu.grid(row=12, column=0, padx=(20, 20), pady=(10, 0))
+        self.language_option_menu.grid(row=12, column=0, padx=(10, 10), pady=(0, 20))
         # Create StringVar instances to keep track of option menu selections
         # Add these lines after initializing the OptionMenu widgets
         self.map_var = customtkinter.StringVar(value=_("Google normal"))  # Default value
