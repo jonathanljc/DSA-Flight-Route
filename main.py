@@ -381,23 +381,8 @@ class App(customtkinter.CTk):
         cheapest_path_label.pack()
         
         # Create a dictionary to store the cheapest flight for each unique combination of source and destination
-        cheapest_flights = {}
-        # Iterate through each flight in self.results.dijkstra_connecting_flights
-        for flight in self.results.dijkstra_connecting_flights:
-            source = flight['source']
-            destination = flight['destination']
-            price = flight['price']
-            
-            # Check if this combination of source and destination already exists in the dictionary
-            if (source, destination) not in cheapest_flights:
-                # If it doesn't exist, add it to the dictionary with the current flight as the cheapest option
-                cheapest_flights[(source, destination)] = flight
-            else:
-                # If it does exist, compare the price of the current flight with the cheapest price stored in the dictionary
-                current_cheapest_price = cheapest_flights[(source, destination)]['price']
-                if price < current_cheapest_price:
-                    # If the current flight is cheaper, update the dictionary with this flight as the new cheapest option
-                    cheapest_flights[(source, destination)] = flight
+        flights = self.results.dijkstra_connecting_flights
+        cheapest_flights = self.planner.calculate_cheapest_flights(flights)
 
         # Display the cheapest flights
         for flight in cheapest_flights.values():
@@ -713,8 +698,14 @@ class App(customtkinter.CTk):
             elif self.selected_algorithm.get() == "Bellman-Ford":
                 path_markers = self.setMarkersAndPaths(self.results.bellman_ford_path)
             elif self.selected_algorithm.get() == "Cheapest Path": # Edit
-                path_markers = self.setMarkersAndPaths(self.results.dijkstra_path)
-                
+                flights = self.results.dijkstra_connecting_flights
+                cheapest_flights = self.planner.calculate_cheapest_flights(flights)
+                # Create a list of vertices for the cheapest flights path
+                cheapest_flights_list = []
+                for flight in cheapest_flights.values():
+                    cheapest_flights_list.append((flight['source'], flight['destination'], flight['price']))
+
+                path_markers = self.setMarkersAndPaths(cheapest_flights_list)
 
             self.status_code.configure(text_color="green")
             self.status_variable.set(_("Search Completed!"))

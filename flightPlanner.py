@@ -121,3 +121,20 @@ class FlightPlanner:
         #results.dfs_direct_flights, results.dfs_connecting_flights = self.flight_graph.calculatePrice(results.dfs_direct_flights, results.dfs_connecting_flights, results.dfs_path, results.dfs_total_distance)
         
         return results
+    
+
+    def calculate_cheapest_flights(self, flights):
+        cheapest_flights = {}
+        for flight in flights:
+            source = flight['source']
+            destination = flight['destination']
+            price = flight['price']
+
+            if (source, destination) not in cheapest_flights:
+                cheapest_flights[(source, destination)] = flight
+            else:
+                current_cheapest_price = cheapest_flights[(source, destination)]['price']
+                if price < current_cheapest_price:
+                    cheapest_flights[(source, destination)] = flight
+
+        return cheapest_flights
